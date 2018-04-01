@@ -410,7 +410,7 @@ module.exports.loop = function () {
 	//Inventory.update();
     });
 }
-
+console.log("test");
 function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
 {
     var activeSpawns = activeRoom.find(FIND_STRUCTURES, {
