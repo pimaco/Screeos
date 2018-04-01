@@ -1,0 +1,1522 @@
+/// <reference path="./inventoryBuilder2.js" />
+
+var roleHarvester = require('role.harvester');
+var roleUpgrader = require('role.upgrader');
+var roleBuilder = require('role.builder');
+var roadRepair = require('role.roadrepair');
+var roleUpgrader2 = require('role.upgrader2');
+var rolewallRepair = require('role.wallrepair');
+var roleMiner = require('role.miner');
+var roleSpawnHelper = require('role.SpawnHelper');
+var roleDefense = require('role.defense');
+var roleTower = require('role.tower');
+var roleMiner2 = require('role.miner2');
+const profiler = require('screeps.profiler');
+var roleLinker = require('role.linker');
+var roleAttacker = require('role.attacker');
+var roleupcrossroom = require('role.upcrossroom');
+var roleExtractor = require('role.extractor');
+var roleEnergyMover = require('role.energyMover');
+var pathCalculator = require('pathCalculator');
+var Traveler = require('Traveler');
+///var Inventory = new Inventory();
+
+"use strict";
+
+
+var room1 = Game.rooms['W62N27'];
+var room2 = Game.rooms['W63N27'];
+var room3 = Game.rooms['W63N28'];
+var room4 = Game.rooms['W63N29'];
+var room5 = Game.rooms['W64N28'];
+var toBuildRoom1 = room1.find(FIND_CONSTRUCTION_SITES); 
+var toBuildRoom2 = room2.find(FIND_CONSTRUCTION_SITES); 
+var toBuildRoom3 = room3.find(FIND_CONSTRUCTION_SITES); 
+var toBuildRoom4 = room4.find(FIND_CONSTRUCTION_SITES); 
+var toBuildRoom5 = room5.find(FIND_CONSTRUCTION_SITES); 
+//console.log(toBuildRoom2.length);
+var myrooms = [room1,room2,room3,room4,room5];
+Memory.myrooms = myrooms;
+
+
+//enable profiler module
+profiler.enable();
+
+module.exports.loop = function () {
+	var Inventory = require('inventoryBuilder')
+	
+	
+    profiler.wrap(function() {
+	defendRoom(room1.name);
+	defendRoom(room2.name);
+	defendRoom(room3.name);
+	defendRoom(room4.name);
+	defendRoom(room5.name);
+	
+//	if(!(Game.rooms['W62N27'].controller.safeMode) && !(Game.rooms['W62N27'].controller.safeModeCooldown))
+//	{
+//		Game.rooms['W62N27'].controller.activateSafeMode();
+//	}
+
+	for(var name in Memory.creeps)
+	{
+		if(!Game.creeps[name])
+		{
+			delete Memory.creeps[name];
+		}
+	}
+	var linksRoom1 = room1.find(FIND_STRUCTURES,{filter: function(object) 
+		{
+			return object.structureType === STRUCTURE_LINK
+		}});
+	//This part handle transfer between links
+	var linkFrom = room1.lookForAt('structure', 34, 33)[0];
+	var linkTo = room1.lookForAt('structure', 18, 12)[0];  
+
+    linkFrom.transferEnergy(linkTo);
+    
+    /*var linkFrom2 = spawn2.room.lookForAt('structure', 14, 39)[1];
+    var linkTo2 = spawn2.room.lookForAt('structure', 13, 9)[0];
+    var linkToCont2 = spawn2.room.lookForAt('structure', 29, 6)[0];
+    if(_.sum(spawn2.room.storage.store) < 75000)
+    {
+        linkFrom2.transferEnergy(linkTo2);
+    }
+    else
+    {
+        linkFrom2.transferEnergy(linkToCont2);
+    }
+    
+    var TermRoom1 = spawn2.room.find(FIND_STRUCTURES, {
+    filter: function(object)
+        {
+            return object.structureType === STRUCTURE_TERMINAL;
+        } 
+    });
+    var TermRoom2 = spawn2.room.find(FIND_STRUCTURES, {
+    filter: function(object)
+        {
+            return object.structureType === STRUCTURE_TERMINAL;
+        } 
+    });
+    var total1 = _.sum(TermRoom1[0].store);
+    var total2 = _.sum(TermRoom2[0].store);
+    
+    if(total1 > 25000 && total2 < 275000)
+    {
+        TermRoom1[0].send(RESOURCE_ENERGY, 20000, 'E27N21', 'Trade Energy from Room1');
+        TermRoom1[0].send(RESOURCE_LEMERGIUM, 1000, 'E27N21', 'Trade LEMERGIUM from Room1');
+    }
+  */  
+    var attackers = _.filter(Game.creeps, (creep) => creep.memory.role == 'attacker');
+    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
+	var defensers = _.filter(Game.creeps, (creep) => creep.memory.role == 'defense');
+	var upgraders2 = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader2');
+	var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
+	var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
+	var roadrepairers = _.filter(Game.creeps, (creep) => creep.memory.role == 'roadrepair');
+	var wallrepairers = _.filter(Game.creeps, (creep) => creep.memory.role == 'wallrepair');
+	var spawnhelpers = _.filter(Game.creeps, (creep) => creep.memory.role == 'spawnhelper');
+	var miners = _.filter(Game.creeps, (creep) => creep.memory.role == 'miner');
+	var miners2 = _.filter(Game.creeps, (creep) => creep.memory.role == 'miner2');
+	var linkers = _.filter(Game.creeps, (creep) => creep.memory.role == 'linker');
+	var upcrossers = _.filter(Game.creeps, (creep) => creep.memory.role == 'upcrosser');
+	var extractors = _.filter(Game.creeps, (creep) => creep.memory.role == 'extractor');
+	var energyMovers = _.filter(Game.creeps, (creep) => creep.memory.role == 'energyMover');
+   
+
+	var spawn1 = Game.spawns.Spawn1;
+	if(Game.spawns.Spawn2)
+	{
+		var spawn2 = Game.spawns.Spawn2;
+	}
+	else
+	{
+		var spawn2 = 'notExist';
+	}
+    if(Game.spawns.Spawn3)
+	{
+		var spawn3 = Game.spawns.Spawn3;
+	}
+	else
+	{
+		var spawn3 = 'notExist';
+	}
+	if(Game.spawns.Spawn4)
+	{
+		var spawn4 = Game.spawns.Spawn3;
+	}
+	else
+	{
+		var spawn4 = 'notExist';
+	}
+	if(Game.spawns.Spawn5)
+	{
+		var spawn5 = Game.spawns.Spawn3;
+	}
+	else
+	{
+		var spawn5 = 'notExist';
+	}
+
+		var HarvesterRoom1 = 0;
+		var HarvesterRoom2 = 0;
+		var HarvesterRoom3 = 0;
+		var HarvesterRoom4 = 0;
+		var HarvesterRoom5 = 0;
+		var DefRoom1 = 0;
+		var DefRoom2 = 0;
+		var DefRoom3 = 0;
+		var DefRoom4 = 0;
+		var DefRoom5 = 0;
+		var UpgradersRoom1 = 0;
+		var UpgradersRoom2 = 0;
+		var UpgradersRoom3 = 0;
+		var UpgradersRoom4 = 0;
+		var UpgradersRoom5 = 0;
+		var Upgraders2Room1 = 0;
+		var Upgraders2Room2 = 0;
+		var Upgraders2Room3 = 0;
+		var Upgraders2Room4 = 0;
+		var Upgraders2Room5 = 0;
+		var BuildersRoom1 = 0;
+		var BuildersRoom2 = 0;
+		var BuildersRoom3 = 0;
+		var BuildersRoom4 = 0;
+		var BuildersRoom5 = 0;
+		var RoadRepRoom1 = 0;
+		var RoadRepRoom2 = 0;
+		var RoadRepRoom3 = 0;
+		var RoadRepRoom4 = 0;
+		var RoadRepRoom5 = 0;
+		var WallRepRoom1 = 0;
+		var WallRepRoom2 = 0;
+		var WallRepRoom3 = 0;
+		var WallRepRoom4 = 0;
+		var WallRepRoom5 = 0;
+		var SpawnHelperRoom1 = 0;
+		var SpawnHelperRoom2 = 0;
+		var SpawnHelperRoom3 = 0;
+		var SpawnHelperRoom4 = 0;
+		var SpawnHelperRoom5 = 0;
+		var MinerRoom1 = 0;
+		var MinerRoom2 = 0;
+		var MinerRoom3 = 0;
+		var MinerRoom4 = 0;
+		var MinerRoom5 = 0;
+		var Miner2Room1 = 0;
+		var Miner2Room2 = 0;
+		var Miner2Room3 = 0;
+		var Miner2Room4 = 0;
+		var Miner2Room5 = 0;
+		var LinkerRoom1 = 0;
+		var LinkerRoom2 = 0;
+		var LinkerRoom3 = 0;
+		var LinkerRoom4 = 0;
+		var LinkerRoom5 = 0;
+		var ExtractRoom1 = 0;
+		var ExtractRoom2 = 0;
+		var ExtractRoom3 = 0;
+		var ExtractRoom4 = 0;
+		var ExtractRoom5 = 0;
+		var energyMoverRoom1 = 0;
+		var energyMoverRoom2 = 0;
+		var energyMoverRoom3 = 0;
+		var energyMoverRoom4 = 0;
+		var energyMoverRoom4 = 0;
+		var Upcrossers1 = 0;
+		var Upcrossers2 = 0;
+	
+		for(var def in harvesters )
+		{
+			var creeproom = harvesters[def].memory.home.name;
+			if(creeproom == room1.name)
+			{
+				HarvesterRoom1 += 1;;
+			}
+		    else if(creeproom == room2.name)
+			{
+				HarvesterRoom2 += 1;
+			}
+			else if(creeproom == room3.name)
+			{
+				HarvesterRoom3 += 1;	
+			}
+			else if(creeproom == room4.name)
+			{
+				HarvesterRoom4 += 1;	
+			}
+		}	
+
+	    for(var def in defensers )
+		{
+			var creeproom = defensers[def].memory.home.name;
+			if(creeproom == room1.name)
+			{
+				DefRoom1 += 1;
+			}
+		    else if(creeproom == room2.name)
+			{
+				DefRoom2 += 1;
+			}
+			else if(creeproom == room3.name)
+			{
+				DefRoom3 += 1;
+			}
+			else if(creeproom == room4.name)
+			{
+				DefRoom4 += 1;
+			}
+		}
+
+		for(var def in upgraders )
+		{
+			var creeproom = upgraders[def].memory.home.name;
+			if(creeproom == room1.name)
+			{
+				UpgradersRoom1 += 1;
+			}
+		    else if(creeproom == room2.name)
+			{
+				UpgradersRoom2 += 1;
+			}
+			else if(creeproom == room3.name)
+			{
+				UpgradersRoom3 += 1;
+			}
+			else if(creeproom == room4.name)
+			{
+				UpgradersRoom4 += 1;
+			}
+		}
+
+		for(var def in upgraders2 )
+		{
+			var creeproom = upgraders2[def].memory.home.name;
+			if(creeproom == room1.name)
+			{
+				Upgraders2Room1 += 1;
+			}
+		    else if(creeproom == room2.name)
+			{
+				Upgraders2Room2 += 1;
+			}
+			else if(creeproom == room3.name)
+			{
+				Upgraders2Room3 += 1;
+			}
+			else if(creeproom == room4.name)
+			{
+				Upgraders2Room4 += 1;
+			}
+		}
+
+		for(var def in builders )
+		{
+			var creeproom = builders[def].memory.home.name;
+			if(creeproom == room1.name)
+			{
+				BuildersRoom1 += 1;
+			}
+		    else if(creeproom == room2.name)
+			{
+				BuildersRoom2 += 1;
+			}
+			else if(creeproom == room3.name)
+			{
+				BuildersRoom3 += 1;
+			}
+			else if(creeproom == room4.name)
+			{
+				BuildersRoom4 += 1;
+			}
+		}
+
+		for(var def in roadrepairers )
+		{
+			var creeproom = roadrepairers[def].memory.home.name;
+			if(creeproom == room1.name)
+			{
+				RoadRepRoom1 += 1;
+			}
+		    else if(creeproom == room2.name)
+			{
+				RoadRepRoom2 += 1;
+			}
+			else if(creeproom == room3.name)
+			{
+				RoadRepRoom3 += 1;
+			}
+			else if(creeproom == room4.name)
+			{
+				RoadRepRoom4 += 1;
+			}
+		}
+
+		for(var def in wallrepairers )
+		{
+			var creeproom = wallrepairers[def].memory.home.name;
+			if(creeproom == room1.name)
+			{
+				WallRepRoom1 += 1;
+			}
+		    else if(creeproom == room2.name)
+			{
+				WallRepRoom2 += 1;
+			}
+			else if(creeproom == room3.name)
+			{
+				WallRepRoom3 += 1;
+			}
+			else if(creeproom == room4.name)
+			{
+				WallRepRoom4 += 1;
+			}
+		}
+		
+		for(var def in spawnhelpers )
+		{
+			var creeproom = spawnhelpers[def].memory.home.name;
+			if(creeproom == room1.name)
+			{
+				SpawnHelperRoom1 += 1;
+			}
+		    else if(creeproom == room2.name)
+			{
+				SpawnHelperRoom2 += 1;
+			}
+			else if(creeproom == room3.name)
+			{
+				SpawnHelperRoom3 += 1;
+			}
+			else if(creeproom == room4.name)
+			{
+				SpawnHelperRoom4 += 1;
+			}
+		}
+
+		for(var def in miners )
+		{
+			var creeproom = miners[def].memory.home.name;
+			if(creeproom == room1.name)
+			{
+				MinerRoom1 += 1;
+			}
+		    else if(creeproom == room2.name) 
+			{
+				MinerRoom2 += 1;
+			}
+			else if(creeproom == room3.name) 
+			{
+				MinerRoom3 += 1;
+			}
+			else if(creeproom == room4.name) 
+			{
+				MinerRoom4 += 1;
+			}
+		}
+
+		for(var def in miners2 )
+		{
+			var creeproom = miners2[def].memory.home.name;
+			if(creeproom == room1.name)
+			{
+				Miner2Room1 += 1;
+			}
+		    else if(creeproom == room2.name) 
+			{
+				Miner2Room2 += 1;
+			}
+			else if(creeproom == room3.name) 
+			{
+				Miner2Room3 += 1;
+			}
+			else if(creeproom == room4.name) 
+			{
+				Miner2Room4 += 1;
+			}
+		}
+
+		for(var def in linkers )
+		{
+			var creeproom = linkers[def].memory.home.name;
+			if(creeproom == room1.name)
+			{
+				LinkerRoom1 += 1;
+			}
+			else if(creeproom == room2.name)
+			{
+				LinkerRoom2 += 1;
+			}
+			else if(creeproom == room3.name)
+			{
+				LinkerRoom3 += 1;
+			}
+			else if(creeproom == room4.name)
+			{
+				LinkerRoom4 += 1;
+			}
+		}
+		
+		for(var def in extractors )
+		{
+			var creeproom = extractors[def].memory.home.name;
+			if(creeproom == room1.name)
+			{
+				ExtractRoom1 += 1;
+			}
+		    else if(creeproom == room2.name)
+			{
+				ExtractRoom2 += 1;
+			}
+			else if(creeproom == room3.name)
+			{
+				ExtractRoom3 += 1;
+			}
+			else if(creeproom == room4.name)
+			{
+				ExtractRoom4 += 1;
+			}
+		}	
+
+		for(var def in energyMovers )
+		{
+			var creeproom = energyMovers[def].memory.home.name;
+			if(creeproom == room1.name)
+			{
+				energyMoverRoom1 += 1;
+			}
+		    else if(creeproom == room2.name)
+			{
+				energyMoverRoom2 += 1;
+			}
+			else if(creeproom == room3.name)
+			{
+				energyMoverRoom3 += 1;
+			}
+			else if(creeproom == room4.name)
+			{
+				energyMoverRoom4 += 1;
+			}
+		}
+
+		for(var def in upcrossers )
+		{
+			var creeproom = upcrossers[def].memory.home.name;
+			if(creeproom == room5.name)
+			{
+				Upcrossers1 += 1;
+			}
+		    else if(creeproom == room4.name)
+			{
+				Upcrossers2 += 1;
+			}
+
+		}
+//console.log(energyMoverRoom2);
+	var nbContainersRoom1 = spawn2.room.find(FIND_STRUCTURES, {
+		filter: function(object)
+		{
+			return object.structureType === STRUCTURE_CONTAINER;
+		} });
+		
+    if(spawn1.spawning == null )
+    {		
+		if(HarvesterRoom1 < 2)
+    	{   
+    	    if(spawn1.canCreateCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'harvester', home: room1});
+    	        console.log('Spawning new harvester (Room1): ' + newName);
+    	    }
+    	    else if(spawn1.canCreateCreep([WORK,CARRY,CARRY,MOVE,MOVE]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'harvester', home: room1});
+    	        console.log('Spawning new harvester (Room1): ' + newName);
+    	    }
+			else if(spawn1.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([WORK,CARRY,MOVE], undefined, {role: 'harvester', home: room1});
+    	        console.log('Spawning new harvester (Room1): ' + newName);
+    	    }
+    	}
+    	else if(Miner2Room1 < 1 && nbContainersRoom1.length > 0)
+    	{   
+			
+    	    if(spawn1.canCreateCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE]) == OK)
+    	    {	
+    	        var newName = spawn1.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, {role: 'miner2', home: room1});
+    	        console.log('Spawning new miner2 (Room1): ' + newName);
+    	    }
+    	    else if(spawn1.canCreateCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE], undefined, {role: 'miner2', home: room1});
+    	        console.log('Spawning new miner2 (Room1): ' + newName);
+			}
+		/*	else if(spawn1.canCreateCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE], undefined, {role: 'miner2', home: room1});
+    	        console.log('Spawning new miner2 (Room1): ' + newName);
+			}
+			else if(spawn1.canCreateCreep([WORK,WORK,CARRY,MOVE]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([WORK,WORK,CARRY,MOVE], undefined, {role: 'miner2', home: room1});
+    	        console.log('Spawning new miner2 (Room1): ' + newName);
+    	    }*/
+		}
+    	else if(MinerRoom1 < 1 && nbContainersRoom1.length > 0)
+    	{   
+			if(spawn1.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY], undefined, {role: 'miner', home: room1});
+    	        console.log('Spawning new miner (Room1): ' + newName);
+			}
+			else if(spawn1.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY], undefined, {role: 'miner', home: room1});
+    	        console.log('Spawning new miner (Room1): ' + newName);
+    	    }
+    		else if(spawn1.canCreateCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, {role: 'miner', home: room1});
+    	        console.log('Spawning new miner (Room1): ' + newName);
+    	    }
+    	    else if(spawn1.canCreateCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE], undefined, {role: 'miner', home: room1});
+    	        console.log('Spawning new miner (Room1): ' + newName);
+			}
+			else if(spawn1.canCreateCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE], undefined, {role: 'miner', home: room1});
+    	        console.log('Spawning new miner (Room1): ' + newName);
+			}
+			else if(spawn1.canCreateCreep([WORK,WORK,CARRY,MOVE]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([WORK,WORK,CARRY,MOVE], undefined, {role: 'miner', home: room1});
+    	        console.log('Spawning new miner (Room1): ' + newName);
+    	    }
+		}
+		else if(energyMoverRoom1 < 1 && nbContainersRoom1.length > 1) 
+		{
+			//console.log('here');
+			if(spawn1.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]) == OK)
+			{
+				var newName = spawn1.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'energyMover', home: room1});
+				console.log('Spawning new energyMover (Room1): ' + newName);
+			}
+			else if(spawn1.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]) == OK)
+			{
+				var newName = spawn1.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'energyMover', home: room1});
+				console.log('Spawning new energyMover (Room1): ' + newName);
+			}
+			else if(spawn1.canCreateCreep([MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]) == OK)
+			{
+				var newName = spawn1.createCreep([MOVE,MOVE,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'energyMover', home: room1});
+				console.log('Spawning new energyMover (Room1): ' + newName);
+			}	
+			else if(spawn1.canCreateCreep([CARRY,CARRY,MOVE]) == OK)
+			{
+				var newName = spawn1.createCreep([CARRY,CARRY,MOVE], undefined, {role: 'energyMover', home: room1});
+				console.log('Spawning new energyMover (Room1): ' + newName);
+			}	
+		}
+		else if(UpgradersRoom1 < 4)
+    	{
+    	    if(spawn1.canCreateCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY], undefined, {role: 'upgrader', home: room1});
+    		    console.log('Spawning new upgrader (Room1): ' + newName)
+    	    }
+    	    else if(spawn1.canCreateCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY], undefined, {role: 'upgrader', home: room1});
+    		    console.log('Spawning new upgrader (Room1): ' + newName)
+    	    }
+    	    else if(spawn1.canCreateCreep([MOVE,WORK,CARRY,CARRY]) == OK)
+    		{
+    		    var newName = spawn1.createCreep([MOVE,WORK,CARRY,CARRY], undefined, {role: 'upgrader', home: room1});
+    		    console.log('Spawning new upgrader (Room1): ' + newName)
+    		}
+    		else if(spawn1.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+    		{
+    		    var newName = spawn1.createCreep([WORK,CARRY,MOVE], undefined, {role: 'upgrader', home: room1});
+    		    console.log('Spawning new upgrader (Room1): ' + newName)
+    		}
+    	}
+		else if(BuildersRoom1 < 2 && toBuildRoom1.length > 0)
+    	{
+    	    
+    	    if(spawn1.canCreateCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+    	    {
+    		    var newName = spawn1.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room1});
+    		    console.log('Spawning new builder (Room1): ' + newName);
+    	    }
+    	    else if(spawn1.canCreateCreep([MOVE,WORK,CARRY]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([WORK,CARRY,MOVE], undefined, {role: 'builder', home: room1});
+    	        console.log('Spawning new builder (Room1): ' + newName);
+    	    }
+    		
+		}
+		else if(RoadRepRoom1 < 2)
+    	{
+
+			if(spawn1.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+			{
+    			var newName = spawn1.createCreep([WORK,CARRY,MOVE], undefined, {role: 'roadrepair', Harvest: false, home: room1});
+				console.log('Spawning new roadRepairer (Room1): ' + newName);
+			}	
+		}
+    	else if(SpawnHelperRoom1 < 1 && nbContainersRoom1.length > 0)
+    	{
+			if(spawn1.canCreateCreep([MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]) == OK)
+			{
+				var newName = spawn1.createCreep([MOVE,MOVE,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'spawnhelper', home: room1});
+				console.log('Spawning new spawnHelper (Room1): ' + newName);
+			}	
+			else if(spawn1.canCreateCreep([CARRY,CARRY,MOVE]) == OK)
+			{
+				var newName = spawn1.createCreep([CARRY,CARRY,MOVE], undefined, {role: 'spawnhelper', home: room1});
+				console.log('Spawning new spawnHelper (Room1): ' + newName);
+			}	
+		}
+		/*
+    	else if (LinkerRoom2 > 1)
+    	{
+    	    if(spawn1.canCreateCreep([MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]) == OK)
+    	    {
+    	       var newName = spawn2.createCreep([MOVE,MOVE,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'linker'});
+    		    console.log('Spawning new linker (Room2): ' + newName); 
+    	    }
+    	    else
+    	    {
+    		    var newName = spawn2.createCreep([CARRY,CARRY,MOVE], undefined, {role: 'linker'});
+    		    console.log('Spawning new linker (Room2): ' + newName);
+    	    }
+		}*/
+    	else if(attackers.length > 1)
+    	{
+    		var newName = spawn1.createCreep([ATTACK,ATTACK,ATTACK,ATTACK,MOVE,MOVE], undefined, {role: 'attacker'});
+    		console.log('Spawning new attacker: ' + newName);
+		}
+		
+    	else if(DefRoom1 < 1)
+    	{
+			if(spawn1.canCreateCreep([ATTACK,ATTACK,ATTACK,ATTACK,MOVE,MOVE]) == OK)
+    	    {
+				var newName = spawn1.createCreep([ATTACK,ATTACK,ATTACK,ATTACK,MOVE,MOVE], undefined, {role: 'defense', home: room1});
+				console.log('Spawning new defenser (Room1): ' + newName);
+			}
+			else if(spawn1.canCreateCreep([ATTACK,ATTACK,MOVE,MOVE]) == OK)
+    	    {
+				var newName = spawn1.createCreep([ATTACK,ATTACK,MOVE,MOVE], undefined, {role: 'defense', home: room1});
+				console.log('Spawning new defenser (Room1): ' + newName);
+			}
+		}/*
+    	else if(ExtractRoom2 > 1)
+    	{
+    	    if(spawn1.canCreateCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE]) == OK)
+    	    {
+    	        var newName = spawn2.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, {role: 'extractor'});
+    	        console.log('Spawning new extractor (Room2): ' + newName);
+    	    }
+    	    else
+    	    {
+    	        var newName = spawn1.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE], undefined, {role: 'extractor'});
+    	        console.log('Spawning new extractor (Room2): ' + newName);
+    	    }
+    	}*/
+    	else if (Upcrossers1 < 4 && myrooms.length > 1)
+    	{
+			if(spawn1.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,CARRY,CARRY,CARRY]) == OK)
+    		{
+    		    var newName = spawn1.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,CARRY,CARRY,CARRY], undefined, {role: 'upcrosser', home: room5});
+    		    console.log('Spawning new upcrosser: ' + newName)
+    		}
+    	    else if(spawn1.canCreateCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+    		{
+    		    var newName = spawn1.createCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY], undefined, {role: 'upcrosser', home: room5});
+    		    console.log('Spawning new upcrosser: ' + newName)
+    		}
+    		else if(spawn1.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+    		{
+    		    var newName = spawn1.createCreep([WORK,CARRY,MOVE], undefined, {role: 'upcrosser', home: room5});
+    		    console.log('Spawning new upcrosser: ' + newName)
+    		}
+		}
+		else if (Upcrossers2 < 5 && myrooms.length > 1)
+    	{
+			if(spawn1.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,CARRY,CARRY,CARRY]) == OK)
+    		{
+    		    var newName = spawn1.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,CARRY,CARRY,CARRY], undefined, {role: 'upcrosser', home: room4});
+    		    console.log('Spawning new upcrosser2: ' + newName)
+    		}
+    	    else if(spawn1.canCreateCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+    		{
+    		    var newName = spawn1.createCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY], undefined, {role: 'upcrosser', home: room4});
+    		    console.log('Spawning new upcrosser2: ' + newName)
+    		}
+    		else if(spawn1.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+    		{
+    		    var newName = spawn1.createCreep([WORK,CARRY,MOVE], undefined, {role: 'upcrosser', home: room4});
+    		    console.log('Spawning new upcrosser2: ' + newName)
+    		}
+    	}
+		else if(UpgradersRoom1 < 2)
+    	{
+    	    if(spawn1.canCreateCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY], undefined, {role: 'upgrader', home: room1});
+    		    console.log('Spawning new upgrader (Room1): ' + newName)
+    	    }
+    	    else if(spawn1.canCreateCreep([MOVE,WORK,CARRY,CARRY]) == OK)
+    		{
+    		    var newName = spawn1.createCreep([MOVE,WORK,CARRY,CARRY], undefined, {role: 'upgrader', home: room1});
+    		    console.log('Spawning new upgrader (Room1): ' + newName)
+    		}
+    		else if(spawn1.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+    		{
+    		    var newName = spawn1.createCreep([WORK,CARRY,MOVE], undefined, {role: 'upgrader', home: room1});
+    		    console.log('Spawning new upgrader (Room1): ' + newName)
+    		}
+    	}
+		else if(Upgraders2Room1 < 0)
+    	{
+    	    if(spawn1.canCreateCreep([MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY,CARRY]) == OK)
+    	    {
+    	        var newName = spawn1.createCreep([MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'upgrader2', home: room1});
+    		    console.log('Spawning new upgrader2 (Room1): ' + newName)
+    	    }
+    	    else if(spawn1.canCreateCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+    		{
+    		    var newName = spawn1.createCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY], undefined, {role: 'upgrader2', home: room1});
+    		    console.log('Spawning new upgrader2 (Room1): ' + newName)
+    		}
+    		else if(spawn1.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+    		{
+    		    var newName = spawn1.createCreep([WORK,CARRY,MOVE], undefined, {role: 'upgrader2', home: room1});
+    		    console.log('Spawning new upgrader2 (Room1): ' + newName)
+    		}
+		}
+		else if(WallRepRoom1 < 2)
+		{
+			if(spawn1.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY]) == OK)
+			{ 
+				var newName = spawn1.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY], undefined, {role: 'wallrepair', home: room1});
+				console.log('Spawning new wallRepairer (Room1): ' + newName);
+			}
+			else if(spawn1.canCreateCreep([MOVE,MOVE,MOVE,WORK,CARRY,CARRY]) == OK)
+			{ 
+				var newName = spawn1.createCreep([MOVE,MOVE,MOVE,WORK,CARRY,CARRY], undefined, {role: 'wallrepair', home: room1});
+				console.log('Spawning new wallRepairer (Room1): ' + newName);
+			}
+			if(spawn1.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+			{ 
+				var newName = spawn1.createCreep([WORK,CARRY,MOVE], undefined, {role: 'wallrepair', home: room1});
+				console.log('Spawning new wallRepairer (Room1): ' + newName);
+			}
+		}
+		else if(((BuildersRoom2 < 3 && spawn2 == 'notExist') || (BuildersRoom2 < 1 && spawn2 != 'notExist' )) && toBuildRoom2.length > 0 && myrooms.length > 1)
+		{
+			
+			if(spawn1.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY]) == OK)
+			{
+				var newName = spawn1.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room2});
+				console.log('Spawning new builder (Room2) from Room1: ' + newName);
+			}
+			else if(spawn1.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY]) == OK)
+			{
+				var newName = spawn1.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room2});
+				console.log('Spawning new builder (Room2) from Room1: ' + newName);
+			}
+			else if(spawn1.canCreateCreep([WORK,CARRY, MOVE]) == OK)
+			{
+				var newName = spawn1.createCreep([WORK,CARRY, MOVE], undefined, {role: 'builder', home: room2});
+				console.log('Spawning new builder (Room2) from Room1: ' + newName);
+			}
+			
+		}
+		else if(RoadRepRoom2 < 1 && myrooms.length > 1)
+		{
+			if(spawn1.canCreateCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE]) == OK)
+			{
+				var newName = spawn1.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'roadrepair', home: room2});
+				console.log('Spawning new roadRepairer (Room2) from Room1: ' + newName);
+			}
+		}
+		else if(BuildersRoom3 < 3 && toBuildRoom3.length > 0)
+		{
+			
+			if(spawn1.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY]) == OK)
+			{
+				var newName = spawn1.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room3});
+				console.log('Spawning new builder (Room3) from Room1: ' + newName);
+			}
+			else if(spawn1.canCreateCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+			{
+				var newName = spawn1.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room3});
+				console.log('Spawning new builder (Room3) from Room1: ' + newName);
+			}
+			else if(spawn1.canCreateCreep([WORK,CARRY, MOVE]) == OK)
+			{
+				var newName = spawn1.createCreep([WORK,CARRY, MOVE], undefined, {role: 'builder', home: room3});
+				console.log('Spawning new builder (Room3) from Room1: ' + newName);
+			}
+			
+		}
+		else if(BuildersRoom4 < 3 && toBuildRoom4.length > 0)
+		{
+			if(spawn1.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY]) == OK)
+			{
+				var newName = spawn1.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room4});
+				console.log('Spawning new builder (Room4) from Room1: ' + newName);
+			}
+			else if(spawn1.canCreateCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+			{
+				var newName = spawn1.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room4});
+				console.log('Spawning new builder (Room4) from Room1: ' + newName);
+			}
+			else if(spawn1.canCreateCreep([WORK,CARRY, MOVE]) == OK)
+			{
+				var newName = spawn1.createCreep([WORK,CARRY, MOVE], undefined, {role: 'builder', home: room4});
+				console.log('Spawning new builder (Room4) from Room1: ' + newName);
+			}	
+		}
+	}
+
+    if(spawn2 != 'notExist')
+	{
+		var nbContainersRoom2 = spawn2.room.find(FIND_STRUCTURES, {
+			filter: function(object)
+			{
+				return object.structureType === STRUCTURE_CONTAINER;
+			} });
+		if(spawn2.spawning == null)
+		{
+			if(Miner2Room2 < 2) 
+			{   
+				if(spawn2.canCreateCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, {role: 'miner2', home: room2});
+					console.log('Spawning new miner2 (Room2): ' + newName);
+				}
+				else if(spawn2.canCreateCreep([WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE], undefined, {role: 'miner2', home: room2});
+					console.log('Spawning new miner2 (Room2): ' + newName);
+				}
+				else if(spawn2.canCreateCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE], undefined, {role: 'miner2', home: room2});
+					console.log('Spawning new miner2 (Room2): ' + newName);
+				}
+				else if(spawn2.canCreateCreep([WORK,WORK,CARRY,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,WORK,CARRY,MOVE], undefined, {role: 'miner2', home: room2});
+					console.log('Spawning new miner2 (Room2): ' + newName);
+				}
+			}
+			else if(energyMoverRoom2 < 1 && nbContainersRoom2.length > 1) 
+			{
+				//console.log('here');
+				if(spawn2.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'energyMover', home: room2});
+					console.log('Spawning new energyMover (Room2): ' + newName);
+				}
+				else if(spawn2.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'energyMover', home: room2});
+					console.log('Spawning new energyMover (Room2): ' + newName);
+				}
+				else if(spawn2.canCreateCreep([MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([MOVE,MOVE,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'energyMover', home: room2});
+					console.log('Spawning new energyMover (Room2): ' + newName);
+				}	
+				else if(spawn2.canCreateCreep([CARRY,CARRY,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([CARRY,CARRY,MOVE], undefined, {role: 'energyMover', home: room2});
+					console.log('Spawning new energyMover (Room2): ' + newName);
+				}	
+			}
+			else if(SpawnHelperRoom2 < 1 && nbContainersRoom2.length > 0)
+			{
+				if(spawn2.canCreateCreep([MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([MOVE,MOVE,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'spawnhelper', home: room2});
+					console.log('Spawning new spawnHelper (Room2): ' + newName);
+				}	
+				else if(spawn2.canCreateCreep([CARRY,CARRY,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([CARRY,CARRY,MOVE], undefined, {role: 'spawnhelper', home: room2});
+					console.log('Spawning new spawnHelper (Room2): ' + newName);
+				}	
+			}
+			else if(HarvesterRoom2 < 2)
+			{
+				if(spawn2.canCreateCreep([WORK,CARRY,CARRY,CARRY,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,CARRY,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'harvester', home: room2});
+					console.log('Spawning new harvester (Room2): ' + newName);
+				}
+				else if(spawn2.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,CARRY,MOVE], undefined, {role: 'harvester', home: room2});
+					console.log('Spawning new harvester (Room2): ' + newName);
+				}
+			}
+			else if(UpgradersRoom2 < 2)
+			{
+				if(spawn2.canCreateCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY], undefined, {role: 'upgrader', home: room2});
+					console.log('Spawning new upgrader (Room2): ' + newName)
+				}
+				else if(spawn2.canCreateCreep([MOVE,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([MOVE,WORK,CARRY,CARRY], undefined, {role: 'upgrader', home: room2});
+					console.log('Spawning new upgrader (Room2): ' + newName)
+				}
+				else if(spawn2.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,CARRY,MOVE], undefined, {role: 'upgrader', home: room2});
+					console.log('Spawning new upgrader (Room2): ' + newName)
+				}
+			}
+			else if(DefRoom2 < 1)
+			{
+				if(spawn2.canCreateCreep([ATTACK,ATTACK,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([ATTACK,ATTACK,MOVE,MOVE], undefined, {role: 'defense', home: room2});
+					console.log('Spawning new defenser (Room2): ' + newName);
+				}
+			}
+			else if(WallRepRoom2 < 2)
+			{
+				if(spawn2.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY]) == OK)
+				{ 
+					var newName = spawn2.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY], undefined, {role: 'wallrepair', home: room2});
+					console.log('Spawning new wallRepairer (Room2): ' + newName);
+				}
+				else if(spawn2.canCreateCreep([MOVE,MOVE,MOVE,WORK,CARRY,CARRY]) == OK)
+				{ 
+					var newName = spawn2.createCreep([MOVE,MOVE,MOVE,WORK,CARRY,CARRY], undefined, {role: 'wallrepair', home: room2});
+					console.log('Spawning new wallRepairer (Room2): ' + newName);
+				}
+				if(spawn2.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+				{ 
+					var newName = spawn2.createCreep([WORK,CARRY,MOVE], undefined, {role: 'wallrepair', home: room2});
+					console.log('Spawning new wallRepairer (Room2): ' + newName);
+				}
+				
+			}
+			else if(ExtractRoom1 < 0)
+			{
+				if(spawn2.canCreateCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, {role: 'extractor', home: room1});
+					console.log('Spawning new extractor (Room1): ' + newName);
+				}
+				else
+				{
+					var newName = spawn2.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE], undefined, {role: 'extractor', home: room1});
+					console.log('Spawning new extractor (Room1): ' + newName);
+				}
+			}
+			else if(RoadRepRoom2 < 1 )
+			{
+				if(spawn2.canCreateCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'roadrepair', home: room2});
+					console.log('Spawning new roadRepairer (Room2): ' + newName);
+				}
+			}
+			else if(BuildersRoom2 < 2 && toBuildRoom2.length > 0)
+			{
+				
+				if(spawn2.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room2});
+					console.log('Spawning new builder (Room2): ' + newName);
+				}
+				else if(spawn2.canCreateCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room2});
+					console.log('Spawning new builder (Room2): ' + newName);
+				}
+				else if(spawn2.canCreateCreep([WORK,CARRY, MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,CARRY, MOVE], undefined, {role: 'builder', home: room2});
+					console.log('Spawning new builder (Room2): ' + newName);
+				}
+				
+			}
+			else if (Upcrossers1 < 4 && myrooms.length > 1)
+			{
+				if(spawn2.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,CARRY,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,CARRY,CARRY,CARRY], undefined, {role: 'upcrosser', home: room3});
+					console.log('Spawning new upcrosser (from Room2): ' + newName)
+				}
+				else if(spawn2.canCreateCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY], undefined, {role: 'upcrosser', home: room3});
+					console.log('Spawning new upcrosser (from Room2): ' + newName)
+				}
+				else if(spawn2.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,CARRY,MOVE], undefined, {role: 'upcrosser', home: room3});
+					console.log('Spawning new upcrosser (from Room2): ' + newName)
+				}
+			}
+			else if (Upcrossers2 < 5 && myrooms.length > 1)
+			{
+				if(spawn2.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,CARRY,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,CARRY,CARRY,CARRY], undefined, {role: 'upcrosser', home: room4});
+					console.log('Spawning new upcrosser2 (from Room2): ' + newName)
+				}
+				else if(spawn2.canCreateCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY], undefined, {role: 'upcrosser', home: room4});
+					console.log('Spawning new upcrosser2 (from Room2): ' + newName)
+				}
+				else if(spawn2.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,CARRY,MOVE], undefined, {role: 'upcrosser', home: room4});
+					console.log('Spawning new upcrosser2 (from Room2): ' + newName)
+				}
+			}
+			else if(Upgraders2Room2 < 0 )
+			{
+				if(spawn2.canCreateCreep([MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'upgrader', home: room2});
+					console.log('Spawning new upgrader (Room2): ' + newName);
+				}
+				else if(spawn2.canCreateCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY], undefined, {role: 'upgrader', home: room2});
+					console.log('Spawning new upgrader (Room2): ' + newName);
+				}
+			}
+			else if(BuildersRoom3 < 3 && toBuildRoom3.length > 0)
+			{
+				
+				if(spawn2.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room3});
+					console.log('Spawning new builder (Room3) from Room2: ' + newName);
+				}
+				else if(spawn2.canCreateCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room3});
+					console.log('Spawning new builder (Room3) from Room2: ' + newName);
+				}
+				else if(spawn2.canCreateCreep([WORK,CARRY, MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,CARRY, MOVE], undefined, {role: 'builder', home: room3});
+					console.log('Spawning new builder (Room3) from Room2: ' + newName);
+				}
+				
+			}
+			else if(RoadRepRoom3 < 1 )
+			{
+				if(spawn2.canCreateCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'roadrepair', home: room3});
+					console.log('Spawning new roadRepairer (Room3) from Room2: ' + newName);
+				}
+			}
+			else if(BuildersRoom4 < 3 && toBuildRoom4.length > 0)
+			{
+				
+				if(spawn2.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room4});
+					console.log('Spawning new builder (Room4) from Room2: ' + newName);
+				}
+				else if(spawn2.canCreateCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room4});
+					console.log('Spawning new builder (Room4) from Room2: ' + newName);
+				}
+				else if(spawn2.canCreateCreep([WORK,CARRY, MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,CARRY, MOVE], undefined, {role: 'builder', home: room4});
+					console.log('Spawning new builder (Room4) from Room2: ' + newName);
+				}
+				
+			}
+		}
+	}
+	
+
+	if(spawn3 != 'notExist')
+	{
+		var nbContainersRoom3 = spawn3.room.find(FIND_STRUCTURES, {
+			filter: function(object)
+			{
+				return object.structureType === STRUCTURE_CONTAINER;
+			} });
+		if(spawn3.spawning == null)
+		{
+			if(Miner2Room3 < 1) 
+			{   
+				if(spawn3.canCreateCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, {role: 'miner2', home: room3});
+					console.log('Spawning new miner2 (Room3): ' + newName);
+				}
+				else if(spawn3.canCreateCreep([WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE], undefined, {role: 'miner2', home: room3});
+					console.log('Spawning new miner2 (Room3): ' + newName);
+				}
+				else if(spawn3.canCreateCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE], undefined, {role: 'miner2', home: room3});
+					console.log('Spawning new miner2 (Room3): ' + newName);
+				}
+				else if(spawn3.canCreateCreep([WORK,WORK,CARRY,MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,WORK,CARRY,MOVE], undefined, {role: 'miner2', home: room3});
+					console.log('Spawning new miner2 (Room3): ' + newName);
+				}
+			}
+			else if(MinerRoom3 < 1 && nbContainersRoom3.length > 0)
+			{   
+				if(spawn3.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn3.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY], undefined, {role: 'miner', home: room3});
+					console.log('Spawning new miner (Room3): ' + newName);
+				}
+				else if(spawn3.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn3.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY], undefined, {role: 'miner', home: room3});
+					console.log('Spawning new miner (Room3): ' + newName);
+				}
+				else if(spawn3.canCreateCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, {role: 'miner', home: room3});
+					console.log('Spawning new miner (Room3): ' + newName);
+				}
+				else if(spawn2.canCreateCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE], undefined, {role: 'miner', home: room3});
+					console.log('Spawning new miner (Room3): ' + newName);
+				}
+				else if(spawn2.canCreateCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,WORK,WORK,CARRY,MOVE,MOVE], undefined, {role: 'miner', home: room3});
+					console.log('Spawning new miner (Room3): ' + newName);
+				}
+				else if(spawn2.canCreateCreep([WORK,WORK,CARRY,MOVE]) == OK)
+				{
+					var newName = spawn2.createCreep([WORK,WORK,CARRY,MOVE], undefined, {role: 'miner', home: room3});
+					console.log('Spawning new miner (Room3): ' + newName);
+				}
+			}
+			else if(energyMoverRoom3 < 2 && nbContainersRoom3.length > 1) 
+			{
+				//console.log('here');
+				if(spawn3.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn3.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'energyMover', home: room3});
+					console.log('Spawning new energyMover (Room3): ' + newName);
+				}
+				else if(spawn3.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn3.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'energyMover', home: room3});
+					console.log('Spawning new energyMover (Room3): ' + newName);
+				}
+				else if(spawn3.canCreateCreep([MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn3.createCreep([MOVE,MOVE,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'energyMover', home: room3});
+					console.log('Spawning new energyMover (Room3): ' + newName);
+				}	
+				else if(spawn3.canCreateCreep([CARRY,CARRY,MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([CARRY,CARRY,MOVE], undefined, {role: 'energyMover', home: room3});
+					console.log('Spawning new energyMover (Room3): ' + newName);
+				}	
+			}
+			else if(SpawnHelperRoom3 < 1 && nbContainersRoom3.length > 0)
+			{
+				if(spawn3.canCreateCreep([MOVE,MOVE,CARRY,CARRY,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn3.createCreep([MOVE,MOVE,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'spawnhelper', home: room3});
+					console.log('Spawning new spawnHelper (Room3): ' + newName);
+				}	
+				else if(spawn3.canCreateCreep([CARRY,CARRY,MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([CARRY,CARRY,MOVE], undefined, {role: 'spawnhelper', home: room3});
+					console.log('Spawning new spawnHelper (Room3): ' + newName);
+				}	
+			}
+			else if(HarvesterRoom3 < 2)
+			{
+				if(spawn3.canCreateCreep([WORK,CARRY,CARRY,CARRY,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,CARRY,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'harvester', home: room3});
+					console.log('Spawning new harvester (Room3): ' + newName);
+				}
+				else if(spawn3.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,CARRY,MOVE], undefined, {role: 'harvester', home: room3});
+					console.log('Spawning new harvester (Room3): ' + newName);
+				}
+			}
+			else if(DefRoom3 < 1)
+			{
+				if(spawn3.canCreateCreep([ATTACK,ATTACK,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([ATTACK,ATTACK,MOVE,MOVE], undefined, {role: 'defense', home: room3});
+					console.log('Spawning new defenser (Room3): ' + newName);
+				}
+			}
+			else if(WallRepRoom3 < 2)
+			{
+				
+				if(spawn3.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY]) == OK)
+				{ 
+					var newName = spawn3.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY], undefined, {role: 'wallrepair', home: room3});
+					console.log('Spawning new wallRepairer (Room3): ' + newName);
+				}
+				else if(spawn3.canCreateCreep([MOVE,MOVE,MOVE,WORK,CARRY,CARRY]) == OK)
+				{ 
+					var newName = spawn3.createCreep([MOVE,MOVE,MOVE,WORK,CARRY,CARRY], undefined, {role: 'wallrepair', home: room3});
+					console.log('Spawning new wallRepairer (Room3): ' + newName);
+				}
+				else if(spawn3.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+				{ 
+					var newName = spawn3.createCreep([WORK,CARRY,MOVE], undefined, {role: 'wallrepair', home: room3});
+					console.log('Spawning new wallRepairer (Room3): ' + newName);
+				}
+			}
+			else if(ExtractRoom1 < 0)
+			{
+				if(spawn3.canCreateCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, {role: 'extractor', home: room1});
+					console.log('Spawning new extractor (Room1): ' + newName);
+				}
+				else
+				{
+					var newName = spawn3.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE], undefined, {role: 'extractor', home: room1});
+					console.log('Spawning new extractor (Room1): ' + newName);
+				}
+			}
+			else if(RoadRepRoom3 < 1 )
+			{
+				if(spawn3.canCreateCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'roadrepair', home: room3});
+					console.log('Spawning new roadRepairer (Room3): ' + newName);
+				}
+			}
+			else if(BuildersRoom3 < 2 && toBuildRoom3.length > 0)
+			{
+				
+				if(spawn3.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room3});
+					console.log('Spawning new builder (Room3): ' + newName);
+				}
+				else if(spawn3.canCreateCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room3});
+					console.log('Spawning new builder (Room3): ' + newName);
+				}
+				else if(spawn3.canCreateCreep([WORK,CARRY, MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,CARRY, MOVE], undefined, {role: 'builder', home: room3});
+					console.log('Spawning new builder (Room3): ' + newName);
+				}
+				
+			}
+			else if (Upcrossers1 < 5 && myrooms.length > 1)
+			{
+				if(spawn3.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,CARRY,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn3.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,CARRY,CARRY,CARRY], undefined, {role: 'upcrosser', home: room5});
+					console.log('Spawning new upcrosser (from Room3): ' + newName)
+				}
+				else if(spawn3.canCreateCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn3.createCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY], undefined, {role: 'upcrosser', home: room5});
+					console.log('Spawning new upcrosser (from Room3): ' + newName)
+				}
+				else if(spawn3.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,CARRY,MOVE], undefined, {role: 'upcrosser', home: room5});
+					console.log('Spawning new upcrosser (from Room3): ' + newName)
+				}
+			}
+			else if (Upcrossers2 < 5 && myrooms.length > 1)
+			{
+				if(spawn3.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,CARRY,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn3.createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,CARRY,CARRY,CARRY], undefined, {role: 'upcrosser', home: room4});
+					console.log('Spawning new upcrosser2 (from Room3): ' + newName)
+				}
+				else if(spawn3.canCreateCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn3.createCreep([MOVE,MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY], undefined, {role: 'upcrosser', home: room4});
+					console.log('Spawning new upcrosser2 (from Room3): ' + newName)
+				}
+				else if(spawn3.canCreateCreep([WORK,CARRY,MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,CARRY,MOVE], undefined, {role: 'upcrosser', home: room4});
+					console.log('Spawning new upcrosser2 (from Room3): ' + newName)
+				}
+			}
+			else if(Upgraders2Room3 < 0 )
+			{
+				if(spawn3.canCreateCreep([MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn3.createCreep([MOVE,MOVE,MOVE,WORK,WORK,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'upgrader', home: room3});
+					console.log('Spawning new upgrader (Room3): ' + newName);
+				}
+				else if(spawn3.canCreateCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn3.createCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY], undefined, {role: 'upgrader', home: room3});
+					console.log('Spawning new upgrader (Room3): ' + newName);
+				}
+			}
+			else if(RoadRepRoom3 < 1 )
+			{
+				if(spawn3.canCreateCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'roadrepair', home: room3});
+					console.log('Spawning new roadRepairer (Room3) from Room3: ' + newName);
+				}
+			}
+			else if(BuildersRoom4 < 2 && toBuildRoom4.length > 0)
+			{
+				
+				if(spawn3.canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room4});
+					console.log('Spawning new builder (Room4) from Room3: ' + newName);
+				}
+				else if(spawn3.canCreateCreep([MOVE,MOVE,WORK,WORK,CARRY,CARRY]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder', home: room4});
+					console.log('Spawning new builder (Room4): ' + newName);
+				}
+				else if(spawn3.canCreateCreep([WORK,CARRY, MOVE]) == OK)
+				{
+					var newName = spawn3.createCreep([WORK,CARRY, MOVE], undefined, {role: 'builder', home: room4});
+					console.log('Spawning new builder (Room4) from Room3: ' + newName);
+				}
+				
+			}
+		}
+	}
+
+    for(var name in Game.creeps)
+	{
+		
+		var creep = Game.creeps[name];
+		if(!creep.memory.home)
+		{
+			creep.memory.home = creep.room;
+		}
+		
+		if(creep.memory.role == 'harvester')
+		{
+			roleHarvester.run(creep);
+		}
+		else if(creep.memory.role == 'upgrader')
+		{
+			roleUpgrader.run(creep);
+		}
+		else if(creep.memory.role == 'builder')
+		{
+			roleBuilder.run(creep);
+		}
+		else if(creep.memory.role == 'linker')
+		{
+			roleLinker.run(creep);
+		}	
+		else if(creep.memory.role == 'upgrader2')
+		{
+			roleUpgrader2.run(creep);
+		}
+		else if(creep.memory.role == 'roadrepair')
+		{
+			roadRepair(creep);
+		}
+		else if(creep.memory.role == 'wallrepair')
+		{
+			rolewallRepair(creep);
+		}
+		else if(creep.memory.role == 'miner')
+		{
+			roleMiner.run(creep);
+		}
+		else if(creep.memory.role == 'miner2')
+		{
+			roleMiner2.run(creep);
+		}
+		else if(creep.memory.role == 'spawnhelper')
+		{
+			roleSpawnHelper.run(creep);
+		}
+		else if(creep.memory.role == 'defense')
+		{
+			roleDefense(creep);
+		}
+		else if (creep.memory.role == 'attacker')
+		{
+		    roleAttacker(creep);
+		}
+		else if (creep.memory.role == 'upcrosser')
+		{
+		    roleupcrossroom(creep);
+		}
+		else if (creep.memory.role == 'extractor')
+		{
+		    roleExtractor.run(creep);
+		}
+		else if(creep.memory.role == 'energyMover')
+		{
+			roleEnergyMover.run(creep);
+		}
+		else if(creep.memory.role == 'temp')
+		{
+			creep.moveTo(Game.flags.Flag4);
+		}
+	}
+
+	/*if(Game.rooms.Room2.controller.ticksToDowngrade < 40000)
+	{
+	    console.log(Game.rooms.Room2.controller.ticksToDowngrade);
+	    Game.notify(`Controller no longer updated - Decay in  ${Game.rooms.Room2.controller.ticksToDowngrade}`);
+	}*/
+	Inventory.update();
+    });
+}
+
+function defendRoom(roomName)
+{
+	var hostiles = Game.rooms[roomName].find(FIND_HOSTILE_CREEPS);
+	//console.log('inside DenfendRoom');
+	var towers = Game.rooms[roomName].find( FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
+	if(towers)
+	{
+	//	towers.forEach(tower => roleTower(tower));
+		if(hostiles.length > 0)
+		{
+			var username = hostiles[0].owner.username;
+			if(username != 'Invader')
+			{
+				Game.notify(`User ${username} spotted in room ${roomName}`);    
+			}
+			towers.forEach(tower => tower.attack(hostiles[0]));
+		}
+	}
+} 
