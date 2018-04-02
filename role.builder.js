@@ -15,7 +15,7 @@ var roleBuilder = {
         
         if(creep.pos.roomName != creep.memory.home.name)
         {
-            creep.moveTo(Game.rooms[creep.memory.home.name].controller);
+            creep.travelTo(Game.rooms[creep.memory.home.name].controller);
         }
         else
         {
@@ -55,14 +55,14 @@ var roleBuilder = {
                     //console.log('Creep: ' + creep + 'going to build ' + goodtarget);
                     if(creep.build(goodtarget) == ERR_NOT_IN_RANGE) 
                     {
-                        creep.moveTo(goodtarget);
+                        creep.travelTo(goodtarget);
                     }
                 }
                 else
                 {
                     if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) 
                     {
-                        creep.moveTo(creep.room.controller);
+                        creep.travelTo(creep.room.controller);
                     }
                 }
             }
@@ -70,7 +70,7 @@ var roleBuilder = {
             {
             /* if(_.sum(creep.room.storage.store) > 4000 && (creep.room.storage.transfer(creep, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE))
                 {
-                    creep.moveTo(creep.room.storage);
+                    creep.travelTo(creep.room.storage);
                 }*/
                 if(creep.room.storage)
                 {
@@ -90,7 +90,7 @@ var roleBuilder = {
                 {
                     if(creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                     {
-                    creep.moveTo(creep.room.storage);
+                    creep.travelTo(creep.room.storage);
                     }
                 }   
                 else if(containers.length > 0)
@@ -101,7 +101,7 @@ var roleBuilder = {
                         
                         if(creep.withdraw(containers[i], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE && (total > 50) ) 
                         {
-                            creep.moveTo(containers[i]);
+                            creep.travelTo(containers[i]);
                         }
                         else
                         {
@@ -111,7 +111,7 @@ var roleBuilder = {
                             });
                             if(creep.harvest(Game.getObjectById(creep.memory.sourceToHarvest.id)) == ERR_NOT_IN_RANGE) 
                             {
-                               creep.moveTo(Game.getObjectById(creep.memory.sourceToHarvest.id));
+                               creep.travelTo(Game.getObjectById(creep.memory.sourceToHarvest.id));
                             } 
                         }
                     }
@@ -125,7 +125,7 @@ var roleBuilder = {
 
                      if(creep.harvest(Game.getObjectById(creep.memory.sourceToHarvest.id)) == ERR_NOT_IN_RANGE) 
                     {
-                       creep.moveTo(Game.getObjectById(creep.memory.sourceToHarvest.id));
+                       creep.travelTo(Game.getObjectById(creep.memory.sourceToHarvest.id));
                     } 
                 }
             }

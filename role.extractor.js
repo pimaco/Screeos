@@ -18,12 +18,12 @@ var roleExtractor = {
                
                 if(creep.harvest(SR) == ERR_NOT_IN_RANGE) 
                 {
-                    creep.moveTo(SR);
+                    creep.travelTo(SR);
                 }
             }
             else if(creep.transfer(creep.room.terminal, RESOURCE_UTRIUM) == ERR_NOT_IN_RANGE) 
             {
-    	        creep.moveTo(creep.room.terminal);  
+    	        creep.travelTo(creep.room.terminal);  
     	        creep.transfer(creep.room.terminal, RESOURCE_UTRIUM);
             }
     	}
@@ -42,12 +42,12 @@ var roleExtractor = {
                
                 if(creep.harvest(SR) == ERR_NOT_IN_RANGE) 
                 {
-                    creep.moveTo(SR);
+                    creep.travelTo(SR);
                 }
             }
             else if(creep.transfer(creep.room.terminal, RESOURCE_ZYNTHIUM) == ERR_NOT_IN_RANGE) 
             {
-    	        creep.moveTo(creep.room.terminal);  
+    	        creep.travelTo(creep.room.terminal);  
     	        creep.transfer(creep.room.terminal, RESOURCE_ZYNTHIUM);
             }
     	}

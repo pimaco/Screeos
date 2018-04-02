@@ -8,7 +8,7 @@ var roleEnergyMover = {
 
         if(creep.pos.roomName != creep.memory.home.name)
         {
-            creep.moveTo(Game.rooms[creep.memory.home.name].controller);
+            creep.travelTo(Game.rooms[creep.memory.home.name].controller);
         }
         else
         {    
@@ -133,7 +133,7 @@ var roleEnergyMover = {
                         });
                     if(creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                     {
-                        creep.moveTo(source);   
+                        creep.travelTo(source);   
                     }
                     else
                     {
@@ -148,7 +148,7 @@ var roleEnergyMover = {
                     var target = Game.getObjectById(creep.memory.containerTarget.id);
                     if(creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                     {
-                        creep.moveTo(target);                  
+                        creep.travelTo(target);                  
                     }
                     else
                     {

@@ -203,7 +203,9 @@ module.exports.loop = function () {
     var linkTo = controlledRooms[0].lookForAt('structure', 18, 12)[0]; 
     var linkFrom2 = controlledRooms[4].lookForAt('structure', 38, 8)[0];
     var link2From2 = controlledRooms[4].lookForAt('structure', 27, 18)[0];
-    var linkTo2 = controlledRooms[4].lookForAt('structure', 31, 22)[0]; 
+    var linkTo2 = controlledRooms[4].lookForAt('structure', 31, 22)[0];
+    var linkFrom3 =  controlledRooms[2].lookForAt('structure', 42, 40)[0];
+    var linkTo3 =  controlledRooms[2].lookForAt('structure', 30, 11)[0];
     
     if(linkFrom && linkTo)
     {
@@ -220,6 +222,10 @@ module.exports.loop = function () {
     if(link2From2 && linkTo2)
     {
         link2From2.transferEnergy(linkTo2);
+    }
+    if(linkFrom3 && linkTo3)
+    {
+        linkFrom3.transferEnergy(linkTo3);
     }
     //console.log(controlledRooms);
 

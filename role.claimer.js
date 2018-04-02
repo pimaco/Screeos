@@ -12,7 +12,7 @@ module.exports = function (creep) {
     }
     if (remoteControllerFlag != undefined && creep.room.name != remoteControllerFlag.pos.roomName) {
         //still in wrong room, go out
-        creep.moveTo(remoteControllerFlag);
+        creep.travelTo(remoteControllerFlag);
     }
     else if (remoteControllerFlag != undefined) {
         //new room reached, start reserving / claiming
@@ -29,11 +29,11 @@ module.exports = function (creep) {
                 }
             }
             else {
-                creep.moveTo(creep.room.controller);
+                creep.travelTo(creep.room.controller);
             }
 
             if (returncode == ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.controller);
+                creep.travelTo(creep.room.controller);
             }
 
             if (creep.room.controller.owner != undefined && creep.room.controller.owner.username == playerUsername) {

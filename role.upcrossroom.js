@@ -66,7 +66,7 @@ module.exports = function (creep) {
                     FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
                 if(towers[0] && towers[0].energy < towers[0].energyCapacity && creep.room.controller.ticksToDowngrade > 9000)
                 {
-                    creep.moveTo(towers[0]);
+                    creep.travelTo(towers[0]);
                     creep.transfer(towers[0], RESOURCE_ENERGY);
                 }
                 else if((creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE && creep.carry.energy > 0) || creep.carry.energy == creep.carryCapacity)

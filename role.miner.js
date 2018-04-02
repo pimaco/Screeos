@@ -5,7 +5,7 @@ var roleMiner = {
     {
         if(creep.pos.roomName != creep.memory.home.name)
         {
-            creep.moveTo(Game.rooms[creep.memory.home.name].controller);
+            creep.travelTo(Game.rooms[creep.memory.home.name].controller);
         }
         else
         {
@@ -28,7 +28,7 @@ var roleMiner = {
                 var sources = creep.room.find(FIND_SOURCES);
                 if(creep.harvest(sources[1]) == ERR_NOT_IN_RANGE) 
                 {
-                    creep.moveTo(sources[1]);
+                    creep.travelTo(sources[1]);
                 }
             }
             else if (links.length > 0 && _.sum(links[0].store) < 800)
@@ -36,7 +36,7 @@ var roleMiner = {
                 //else if(creep.transfer(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) 
                 if(creep.transfer(links[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                 {
-                    creep.moveTo(links[0]);  
+                    creep.travelTo(links[0]);  
                     creep.transfer(links[0], RESOURCE_ENERGY);
                 }
             }
@@ -46,7 +46,7 @@ var roleMiner = {
                 //else if(creep.transfer(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) 
                 if(creep.transfer(containers[1], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                 {
-                    creep.moveTo(containers[1]);  
+                    creep.travelTo(containers[1]);  
                     creep.transfer(containers[1], RESOURCE_ENERGY);
                 }
             }
@@ -62,7 +62,7 @@ var roleMiner = {
                 //console.log(containersClose);
                 if(creep.transfer(containersClose, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                 {
-                    creep.moveTo(containersClose);  
+                    creep.travelTo(containersClose);  
                     creep.transfer(containersClose, RESOURCE_ENERGY);
                 }
                     
