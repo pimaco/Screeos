@@ -79,9 +79,16 @@
                     });
                     if(creep.room.storage)
                     {
-                        if((_.sum(creep.room.storage.store) > 5000) && (creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE))
+                        if(_.sum(creep.room.storage.store) > 5000)
                         {
-                            creep.travelTo(creep.room.storage);
+                            if(creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+                            {
+                                creep.travelTo(creep.room.storage);
+                            }
+                            else
+                            {
+                                creep.withdraw(creep.room.storage, RESOURCE_ENERGY);
+                            }
                         }
                         else if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) 
                         {

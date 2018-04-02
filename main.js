@@ -469,7 +469,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
                     harvesters[index] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'harvester' && creep.memory.home.name == activeRoom.name;});                                        
                 }
             }
-            else if(spawnhelpers[index].length < 1 && nbContainersInRoom[index].length > 0)
+            else if(spawnhelpers[index].length < 2 && nbContainersInRoom[index].length > 0)
             {
                 if(activeSpawns[0].canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]) == OK)
                 {
