@@ -8,7 +8,7 @@ var roleEnergyMover = {
 
         if(creep.pos.roomName != creep.memory.home.name)
         {
-            creep.moveTo(Game.rooms[creep.memory.home.name].controller);
+            creep.travelTo(Game.rooms[creep.memory.home.name].controller);
         }
         else
         {    
@@ -21,7 +21,16 @@ var roleEnergyMover = {
             var links = creep.room.find(FIND_STRUCTURES,{filter: function(object) 
                 {
                     return object.structureType === STRUCTURE_LINK
-                }});
+                 }});
+            var labs =   creep.room.find(FIND_STRUCTURES,{filter: function(object) 
+                {
+                    return object.structureType === STRUCTURE_LAB
+                 }});  
+            if(creep.memory.varresource == null || creep.memory.varresource == undefined)
+            {
+                creep.memory.varresource = RESOURCE_ENERGY;
+            }  
+
             if(creep.room.storage)
             {
                 var totalS = (creep.room.storage.store[RESOURCE_ENERGY] );
@@ -48,10 +57,13 @@ var roleEnergyMover = {
             //console.log(creep.pos.x);
             if(containers.length > 0 || links.length > 0)
             {   
-                creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                    //var creep = res.findClosestCarrier();
-                    creep.pickup(res);
-                });
+                if(creep.memory.varresource == RESOURCE_ENERGY)
+                {
+                    creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
+                        //var creep = res.findClosestCarrier();
+                        creep.pickup(res);
+                    });
+                }
                 if(!creep.memory.containerSource)
                 {
                     creep.memory.containerSource = null
@@ -108,7 +120,7 @@ var roleEnergyMover = {
 
 
 
-                if(creep.room.storage && totalS > 15000 && creep.room.terminal && totalEnerTerm < 50000)
+                if(creep.room.storage && totalS > 15000 && creep.room.terminal && totalEnerTerm < 50000 )
                 {
                     creep.memory.containerSource = creep.room.storage;
                     creep.memory.containerTarget = creep.room.terminal;
@@ -119,25 +131,67 @@ var roleEnergyMover = {
                     creep.memory.containerTarget = creep.room.storage;
                 }*/
                 else if(creep.room.storage)
-                {                
-                    creep.memory.containerTarget = creep.room.storage;
+                {  
+                    if(labs && labs.length > 0 && creep.room.terminal)
+                    {
+                        
+                        for (var i = 0, len = labs.length; i < len; i++)
+                        {        
+                            if(labs[i].energy < 2000)
+                            {
+                                //console.log(creep.name + "  "+ labs[i]);
+                                creep.memory.containerSource = creep.room.storage;
+                                creep.memory.containerTarget = labs[i];
+                            }
+                        }
+                        
+                        if(labs[0] && (labs[0].mineralType == RESOURCE_UTRIUM || labs[0].mineralType == undefined) && labs[0].mineralAmount < (labs[0].mineralCapacity - creep.carryCapacity) && creep.room.terminal.store[RESOURCE_UTRIUM] > 0)
+                        {
+                            creep.memory.varresource = RESOURCE_UTRIUM;
+                            creep.memory.containerSource = creep.room.terminal;
+                            creep.memory.containerTarget = labs[0];
+                        }
+                        else if(labs[2] && (labs[2].mineralType == RESOURCE_OXYGEN || labs[2].mineralType == undefined) && labs[2].mineralAmount < (labs[2].mineralCapacity - creep.carryCapacity)&& creep.room.terminal.store[RESOURCE_OXYGEN] > 0)
+                        {
+                            creep.memory.varresource = RESOURCE_OXYGEN;
+                            creep.memory.containerSource = creep.room.terminal;
+                            creep.memory.containerTarget = labs[2];
+                        }
+                        else if(labs[1] && (labs[1].mineralType == RESOURCE_UTRIUM_OXIDE) && labs[1].mineralAmount >= creep.carryCapacity)
+                        {
+                            creep.memory.varresource = RESOURCE_UTRIUM_OXIDE;
+                            creep.memory.containerSource = labs[1];
+                            creep.memory.containerTarget = creep.room.terminal;
+                        }
+                        else
+                        {
+                            creep.memory.varresource = RESOURCE_ENERGY;
+                        }
+                    }
+                    if(!creep.memory.containerTarget)
+                    {              
+                        creep.memory.containerTarget = creep.room.storage;
+                    }
                 }
 
 
-                if(creep.carry.energy < creep.carryCapacity && creep.memory.containerSource )
+                if( _.sum(creep.carry) < creep.carryCapacity && creep.memory.containerSource )
                 {
                     var source = Game.getObjectById(creep.memory.containerSource.id);
-                    creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
+                    if(creep.memory.varresource == RESOURCE_ENERGY)
+                    {
+                        creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
                         //var creep = res.findClosestCarrier();
                         creep.pickup(res);
                         });
-                    if(creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+                    }
+                    if(creep.withdraw(source, creep.memory.varresource) == ERR_NOT_IN_RANGE)
                     {
-                        creep.moveTo(source);   
+                        creep.travelTo(source);   
                     }
                     else
                     {
-                        creep.withdraw(source, RESOURCE_ENERGY);   
+                        creep.withdraw(source, creep.memory.varresource);   
                         creep.memory.containerSource = null; 
                     }
                     //console.log('collect');
@@ -146,18 +200,19 @@ var roleEnergyMover = {
                 {   
                     //console.log('go to target');
                     var target = Game.getObjectById(creep.memory.containerTarget.id);
-                    if(creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+                    if(creep.transfer(target, creep.memory.varresource) == ERR_NOT_IN_RANGE)
                     {
-                        creep.moveTo(target);                  
+                        creep.travelTo(target);                  
                     }
                     else
                     {
-                        creep.transfer(target, RESOURCE_ENERGY);  
+                        creep.transfer(target, creep.memory.varresource);  
                         creep.memory.containerTarget = null;
                     }
                 }  
             }
-        }         
+        }  
+        //console.log(creep.name + "  "+ creep.memory.varresource);       
     }
 };
 module.exports = roleEnergyMover;

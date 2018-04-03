@@ -203,7 +203,9 @@ module.exports.loop = function () {
     var linkTo = controlledRooms[0].lookForAt('structure', 18, 12)[0]; 
     var linkFrom2 = controlledRooms[4].lookForAt('structure', 38, 8)[0];
     var link2From2 = controlledRooms[4].lookForAt('structure', 27, 18)[0];
-    var linkTo2 = controlledRooms[4].lookForAt('structure', 31, 22)[0]; 
+    var linkTo2 = controlledRooms[4].lookForAt('structure', 31, 22)[0];
+    var linkFrom3 =  controlledRooms[2].lookForAt('structure', 42, 40)[0];
+    var linkTo3 =  controlledRooms[2].lookForAt('structure', 30, 11)[0];
     
     if(linkFrom && linkTo)
     {
@@ -221,9 +223,20 @@ module.exports.loop = function () {
     {
         link2From2.transferEnergy(linkTo2);
     }
+    if(linkFrom3 && linkTo3)
+    {
+        linkFrom3.transferEnergy(linkTo3);
+    }
     //console.log(controlledRooms);
 
-//console.log(energyMoverRoom2);
+    //create reaction between Labs in Room 0
+    var labs = controlledRooms[0].find(FIND_MY_STRUCTURES, 
+        {filter: {structureType: STRUCTURE_LAB}});
+    
+    if(labs[0].mineralAmount > 0 && labs[2].mineralAmount > 0 && labs[1].mineralAmount < labs[1].mineralCapacity)
+    {
+        labs[1].runReaction(labs[0], labs[2]);
+    }
 
     for(var name in Game.creeps)
     {
@@ -463,7 +476,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
                     harvesters[index] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'harvester' && creep.memory.home.name == activeRoom.name;});                                        
                 }
             }
-            else if(spawnhelpers[index].length < 1 && nbContainersInRoom[index].length > 0)
+            else if(spawnhelpers[index].length < 2 && nbContainersInRoom[index].length > 0)
             {
                 if(activeSpawns[0].canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]) == OK)
                 {

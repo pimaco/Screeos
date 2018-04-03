@@ -7,7 +7,7 @@ var roleHarvester = {
 
         if(creep.pos.roomName != creep.memory.home.name)
         {
-            creep.moveTo(Game.rooms[creep.memory.home.name].controller);
+            creep.travelTo(Game.rooms[creep.memory.home.name].controller);
         }
         else
         {
@@ -55,7 +55,7 @@ var roleHarvester = {
                 { 
                     if(creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                     {
-                        creep.moveTo(creep.room.storage);
+                        creep.travelTo(creep.room.storage);
                     }
                 }
                 else if(containers.length)
@@ -67,11 +67,11 @@ var roleHarvester = {
                         
                         if(creep.withdraw(containers[i], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE && (total > 50) ) 
                         {
-                            creep.moveTo(containers[i]);
+                            creep.travelTo(containers[i]);
                         }
                         else if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) 
                         {
-                            creep.moveTo(sources[0]);
+                            creep.travelTo(sources[0]);
                         }
                         else
                         {
@@ -81,12 +81,12 @@ var roleHarvester = {
                 }
             /* if(creep.room.storage.transfer(creep, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                 {
-                    creep.moveTo(creep.room.storage);
+                    creep.travelTo(creep.room.storage);
                 }
                 */
                 else if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) 
                 {
-                    creep.moveTo(sources[0]);
+                    creep.travelTo(sources[0]);
                 }
                 else
                 {
@@ -104,12 +104,12 @@ var roleHarvester = {
                 
                 if(towers[0].energy < towers[0].energyCapacity)
                 {
-                    creep.moveTo(towers[0]);
+                    creep.travelTo(towers[0]);
                     creep.transfer(towers[0], RESOURCE_ENERGY);
                 }
                 else if(towers[1].energy < towers[1].energyCapacity)
                 {
-                    creep.moveTo(towers[1]);
+                    creep.travelTo(towers[1]);
                     creep.transfer(towers[1], RESOURCE_ENERGY);
                 }
             } */   
@@ -118,13 +118,13 @@ var roleHarvester = {
                 creep.memory.Harvest = false;
                 if(creep.transfer(SpawnInRoom[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) 
                 {
-                    creep.moveTo(SpawnInRoom[0]);
+                    creep.travelTo(SpawnInRoom[0]);
                 }
             }
             else if(SR)
             {
                 creep.memory.Harvest = false;
-                creep.moveTo(SR);
+                creep.travelTo(SR);
                 creep.transfer(SR, RESOURCE_ENERGY);
             }
             else
@@ -132,7 +132,7 @@ var roleHarvester = {
                 creep.memory.Harvest = false;
                 if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) 
                 {
-                    creep.moveTo(creep.room.controller);
+                    creep.travelTo(creep.room.controller);
                 }
             }
         }

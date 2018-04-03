@@ -5,7 +5,7 @@ var roleMiner2 = {
     {
         if(creep.pos.roomName != creep.memory.home.name)
         {
-            creep.moveTo(Game.rooms[creep.memory.home.name].controller);
+            creep.travelTo(Game.rooms[creep.memory.home.name].controller);
         }
         else
         {
@@ -29,7 +29,7 @@ var roleMiner2 = {
                 var sources = creep.room.find(FIND_SOURCES);
                 if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) 
                 {
-                    creep.moveTo(sources[0]);
+                    creep.travelTo(sources[0]);
                 }
                // console.log(creep.harvest(sources[0]));
             }
@@ -38,7 +38,7 @@ var roleMiner2 = {
                // console.log(creep.transfer(SR[0], RESOURCE_ENERGY) + '  ' + creep.name + '  ' + creep.room);
                 if(creep.transfer(SR[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) 
                 {
-                    creep.moveTo(SR);  
+                    creep.travelTo(SR[0]);  
                     creep.transfer(SR[0], RESOURCE_ENERGY);
                 }
             }
@@ -48,13 +48,13 @@ var roleMiner2 = {
                 //else if(creep.transfer(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) 
                 if(creep.transfer(containers[1], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                 {
-                    creep.moveTo(containers[1]);  
+                    creep.travelTo(containers[1]);  
                     creep.transfer(containers[1], RESOURCE_ENERGY);
                 }
             }
             else if(creep.transfer(containers[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
             {
-                creep.moveTo(containers[0]);  
+                creep.travelTo(containers[0]);  
                 creep.transfer(containers[0], RESOURCE_ENERGY);
             }
             else 
@@ -69,7 +69,7 @@ var roleMiner2 = {
                 //console.log(containersClose);
                 if(creep.transfer(containersClose, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                 {
-                    creep.moveTo(containersClose);  
+                    creep.travelTo(containersClose);  
                     creep.transfer(containersClose, RESOURCE_ENERGY);
                 }      
             }  

@@ -7,14 +7,14 @@ module.exports = function (creep) {
     {
         if(creep.attack(target) == ERR_NOT_IN_RANGE) 
         {
-            creep.moveTo(target);
+            creep.travelTo(target);
         }
     }
     else
     {
         if(creep.pos.roomName != creep.memory.home.name)
         {
-            creep.moveTo(Game.rooms[creep.memory.home.name].controller);
+            creep.travelTo(Game.rooms[creep.memory.home.name].controller);
         }
         else
         {
@@ -25,22 +25,22 @@ module.exports = function (creep) {
             {
                 if(creep.attack(target) == ERR_NOT_IN_RANGE) 
                 {
-                    creep.moveTo(target);
+                    creep.travelTo(target);
                 }
             }
             else
             {
                 if(creep.memory.home.name == Memory.myrooms[0].name)
                 {
-                    creep.moveTo(Game.flags.Flag1);
+                    creep.travelTo(Game.flags.Flag1);
                 }
                 else if (creep.memory.home.name == Memory.myrooms[1].name)
                 {
-                    creep.moveTo(Game.flags.Flag2);
+                    creep.travelTo(Game.flags.Flag2);
                 }
                 else if (creep.memory.home.name == Memory.myrooms[2].name)
                 {
-                    creep.moveTo(Game.flags.Flag3);
+                    creep.travelTo(Game.flags.Flag3);
                 }
             }
         }
