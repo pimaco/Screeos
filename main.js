@@ -229,7 +229,14 @@ module.exports.loop = function () {
     }
     //console.log(controlledRooms);
 
-//console.log(energyMoverRoom2);
+    //create reaction between Labs in Room 0
+    var labs = controlledRooms[0].find(FIND_MY_STRUCTURES, 
+        {filter: {structureType: STRUCTURE_LAB}});
+    
+    if(labs[0].mineralAmount > 0 && labs[2].mineralAmount > 0 && labs[1].mineralAmount < labs[1].mineralCapacity)
+    {
+        labs[1].runReaction(labs[0], labs[2]);
+    }
 
     for(var name in Game.creeps)
     {

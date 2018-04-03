@@ -38,7 +38,7 @@ var roleMiner2 = {
                // console.log(creep.transfer(SR[0], RESOURCE_ENERGY) + '  ' + creep.name + '  ' + creep.room);
                 if(creep.transfer(SR[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) 
                 {
-                    creep.travelTo(SR);  
+                    creep.travelTo(SR[0]);  
                     creep.transfer(SR[0], RESOURCE_ENERGY);
                 }
             }
