@@ -174,6 +174,8 @@ var roleEnergyMover = {
                     }
                 }
 
+                
+
 
                 if( _.sum(creep.carry) < creep.carryCapacity && creep.memory.containerSource )
                 {
@@ -198,17 +200,27 @@ var roleEnergyMover = {
                 }
                 else if(creep.memory.containerTarget ) 
                 {   
-                    //console.log('go to target');
+                   // console.log(creep.name + 'go to target');
+                    
                     var target = Game.getObjectById(creep.memory.containerTarget.id);
-                    if(creep.transfer(target, creep.memory.varresource) == ERR_NOT_IN_RANGE)
+                    //console.log(target);
+                    if(creep.transfer(target, _.findKey(creep.carry)) == ERR_NOT_IN_RANGE)
                     {
                         creep.travelTo(target);                  
                     }
                     else
                     {
-                        creep.transfer(target, creep.memory.varresource);  
+                        creep.transfer(target, _.findKey(creep.carry));  
                         creep.memory.containerTarget = null;
                     }
+                }
+                else if(creep.carry.energy)
+                {
+                    creep.memory.containerTarget = creep.room.storage;
+                }
+                else if( _.sum(creep.carry))
+                {
+                    creep.memory.containerTarget = creep.room.terminal;
                 }  
             }
         }  

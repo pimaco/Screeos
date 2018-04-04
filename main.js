@@ -233,7 +233,7 @@ module.exports.loop = function () {
     var labs = controlledRooms[0].find(FIND_MY_STRUCTURES, 
         {filter: {structureType: STRUCTURE_LAB}});
     
-    if(labs[0].mineralAmount > 0 && labs[2].mineralAmount > 0 && labs[1].mineralAmount < labs[1].mineralCapacity)
+    if(labs && labs.length > 2 && labs[1].cooldown == 0 && labs[0].mineralAmount > 0 && labs[2].mineralAmount > 0 && labs[1].mineralAmount < labs[1].mineralCapacity)
     {
         labs[1].runReaction(labs[0], labs[2]);
     }
