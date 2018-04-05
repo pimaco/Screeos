@@ -5,6 +5,8 @@ module.exports = function (creep) {
             console.log(creep.name + " has no sources to stationary harvest in room " + creep.room.name + ".");
         }
         else if (!creep.room.memory.hostiles || creep.room.memory.hostiles.length == 0) {
+            //console.log(creep.name);
+            //console.log(creep.pos);
             var flagRoom = creep.memory.currentFlag.pos.roomName;
             var enerSource = Game.rooms[flagRoom].find(FIND_SOURCES);
             var sourceKeeper = [];

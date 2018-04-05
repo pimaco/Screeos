@@ -817,38 +817,58 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
                 }
 
             } 
-            
-            for (var k = 0, len = 7; k < len; k++)
-            {
-                // console.log(numberOfHauler[k]);
-                if(remoteHarvesters[k].length < 1 || (remoteHarvesters[k][0].ticksToLive < 270  && remoteHarvesters[k].length < 2))
-                { 
-                    if(activeSpawns[0].canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY]) == OK)
-                    {	
-                        var newName = activeSpawns[0].createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY], undefined, {role: 'remoteHarvester', home: activeRoom, currentFlag: arrayFlag[k] });
-                        console.log('Spawning new RemoteHarvester' + k +' from ' + activeRoom.name + ': ' + newName);
-                        remoteHarvesters[k] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'remoteHarvester' && creep.memory.currentFlag && creep.memory.currentFlag.name == ('remote'+k);});
-                        break;
-                    }
-                } 
-                else if(energyHaulers[k].length < numberOfHauler[k] )
+           if(claimers.length > 0 && claimers3.length > 0 && claimers4.length > 0  && claimers5.length > 0 && claimers6.length > 0)
+           {
+                for (var r = 0, len = 7; r < len; r++)
                 {
-                    if(activeSpawns[0].canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]) == OK)
+                    //console.log(r);
+                    //console.log(arrayFlag[r].name);
+                    //console.log(arrayFlag[r].room);
+                    
+
+                    // console.log(arrayFlag[r].pos.roomName);
+                   /* if( Game.rooms[arrayFlag[r].pos.roomName].controller.reservation)
                     {
-                        var newName = activeSpawns[0].createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'energyHauler', home: Game.rooms[destRoom[k]], currentFlag: arrayFlag[k]});
-                        console.log('Spawning new energyHauler'+ k + ' from ' + activeRoom.name + ': ' + newName);
-                        energyHaulers[k] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'energyHauler' && creep.memory.currentFlag && creep.memory.currentFlag.name == ('remote'+k) ;});
-                        break;
+                    console.log(arrayFlag[r].name + "  " + arrayFlag[r].room.controller.reservation.username);
+                    
                     }
-                    else if(activeSpawns[0].canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]) == OK)
+                    else if(arrayFlag[r].room.controller.my)
                     {
-                        var newName = activeSpawns[0].createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'energyHauler', home: Game.rooms[destRoom[k]], currentFlag: arrayFlag[k]});
-                        console.log('Spawning new energyHauler'+ k + ' from ' + activeRoom.name + ': ' + newName);
-                        energyHaulers[k] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'energyHauler' && creep.memory.currentFlag && creep.memory.currentFlag.name == ('remote'+k) ;});
-                        break;
+                        console.log(arrayFlag[r].name + " " + arrayFlag[r].room.controller.my);
+                    }*/
+                    if((arrayFlag[r].room && arrayFlag[r].room.controller && arrayFlag[r].room.controller.reservation && arrayFlag[r].room.controller.reservation.username == 'Pimaco' && arrayFlag[r].room.controller.reservation.ticksToEnd > 1700 ) || (arrayFlag[r].room && arrayFlag[r].room.controller.my))
+                    {
+                        if(remoteHarvesters[r].length < 1 || (remoteHarvesters[r][0].ticksToLive < 270  && remoteHarvesters[r].length < 2))
+                        { 
+                            if(activeSpawns[0].canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY]) == OK)
+                            {	
+                                var newName = activeSpawns[0].createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY], undefined, {role: 'remoteHarvester', home: activeRoom, currentFlag: arrayFlag[r] });
+                                console.log('Spawning new RemoteHarvester' + r+' from ' + activeRoom.name + ': ' + newName);
+                                remoteHarvesters[r] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'remoteHarvester' && creep.memory.currentFlag && creep.memory.currentFlag.name == ('remote'+r);});
+                                break;
+                            }
+                        } 
+                        else if(energyHaulers[r].length < numberOfHauler[r] )
+                        {
+                            if(activeSpawns[0].canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]) == OK)
+                            {
+                                var newName = activeSpawns[0].createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'energyHauler', home: Game.rooms[destRoom[r]], currentFlag: arrayFlag[r]});
+                                console.log('Spawning new energyHauler'+ r + ' from ' + activeRoom.name + ': ' + newName);
+                                energyHaulers[r] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'energyHauler' && creep.memory.currentFlag && creep.memory.currentFlag.name == ('remote'+r) ;});
+                                break;
+                            }
+                            else if(activeSpawns[0].canCreateCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]) == OK)
+                            {
+                                var newName = activeSpawns[0].createCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], undefined, {role: 'energyHauler', home: Game.rooms[destRoom[r]], currentFlag: arrayFlag[r]});
+                                console.log('Spawning new energyHauler'+ r + ' from ' + activeRoom.name + ': ' + newName);
+                                energyHaulers[r] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'energyHauler' && creep.memory.currentFlag && creep.memory.currentFlag.name == ('remote'+r) ;});
+                                break;
+                            }
+                        }
                     }
                 }
             }
+           // }
         }
     }
     
