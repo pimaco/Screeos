@@ -1,28 +1,26 @@
 module.exports = function (creep) {
-    if (!creep.memory.currentFlag || creep.memory.statusHarvesting == undefined || creep.memory.statusHarvesting == false || creep.carry.energy == creep.carryCapacity || Game.time % 8 == 0) {
-        if (!creep.memory.currentFlag || creep.memory.currentFlag == undefined ) {
-            creep.memory.currentFlag = Game.flags.haulEnergy;
-        }
-
+    if (creep.memory.statusHarvesting == undefined || creep.memory.statusHarvesting == false || creep.carry.energy == creep.carryCapacity) 
+    {
         if (creep.memory.currentFlag == undefined) {
             console.log(creep.name + " has no sources to stationary harvest in room " + creep.room.name + ".");
         }
         else if (!creep.room.memory.hostiles || creep.room.memory.hostiles.length == 0) {
-            var flag = Game.flags.haulEnergy;
+            var flagRoom = creep.memory.currentFlag.pos.roomName;
+            var enerSource = Game.rooms[flagRoom].find(FIND_SOURCES);
             var sourceKeeper = [];
 
-            if (flag != undefined) {
-                if (flag.pos.roomName != creep.room.name) {
+            if (flagRoom != undefined) {
+                if (flagRoom != creep.room.name) {
                     // Creep not in assigned room
-                    creep.travelTo(flag);
+                    creep.travelTo(enerSource[0]);
                 }
-                else if (creep.pos.isEqualTo(flag) == true) {
+                else if (creep.pos.findInRange(FIND_SOURCES,1).length > 0) {
                     // Harvesting position reached
                     if (creep.carry.energy > 0 && sourceKeeper.length == 0) {
                         //Identify and save container
                         var buildRoad = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 3, {filter: (s) => s.structureType == STRUCTURE_ROAD});
-                        var buildContainers = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 0, {filter: (s) => s.structureType == STRUCTURE_CONTAINER});
-                        var repairContainers = creep.pos.findInRange(FIND_STRUCTURES, 0, {filter: (s) => s.structureType == STRUCTURE_CONTAINER && s.hits < s.hitsMax});
+                        var buildContainers = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 1, {filter: (s) => s.structureType == STRUCTURE_CONTAINER});
+                        var repairContainers = creep.pos.findInRange(FIND_STRUCTURES, 1, {filter: (s) => s.structureType == STRUCTURE_CONTAINER && s.hits < s.hitsMax});
                         if (buildContainers.length > 0) {
                             creep.build(buildContainers[0]);
                         }
@@ -35,7 +33,7 @@ module.exports = function (creep) {
                         else {
                             if (creep.memory.container == undefined) {
                                 var container;
-                                var containers = creep.pos.findInRange(FIND_STRUCTURES, 0, {filter: (s) => (s.structureType == STRUCTURE_CONTAINER && s.storeCapacity - _.sum(s.store) > 0) || (s.structureType == STRUCTURE_LINK && s.energyCapacity - s.energy) > 0});
+                                var containers = creep.pos.findInRange(FIND_STRUCTURES, 1, {filter: (s) => (s.structureType == STRUCTURE_CONTAINER && s.storeCapacity - _.sum(s.store) > 0) || (s.structureType == STRUCTURE_LINK && s.energyCapacity - s.energy) > 0});
                                 if (containers.length > 0) {
                                     creep.memory.container = containers[0].id;
                                     container = containers[0];
@@ -55,7 +53,7 @@ module.exports = function (creep) {
                                     delete creep.memory.container;
                                     containers = creep.pos.findInRange(FIND_STRUCTURES, 1, {filter: (s) => (s.structureType == STRUCTURE_CONTAINER)});
                                     var constructionSites =  creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 1, {filter: (s) => (s.structureType == STRUCTURE_CONTAINER)});
-                                    if (containers.length == 0 && constructionSites.length == 0 && creep.pos.isEqualTo(flag) == true) {
+                                    if (containers.length == 0 && constructionSites.length == 0 && creep.pos.findInRange(FIND_SOURCES,1).length > 0) {
                                         creep.pos.createConstructionSite(STRUCTURE_CONTAINER);
                                     }
                                 }
@@ -91,8 +89,7 @@ module.exports = function (creep) {
                 }
                 else if (sourceKeeper.length == 0) {
                     // Move to harvesting point
-                    creep.travelTo(flag);
-                    //creep.useFlowPathTo(flag.pos);
+                    creep.travelTo(enerSource[0]);
                 }
             }
             else {

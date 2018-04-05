@@ -74,17 +74,20 @@ module.exports = function (creep) {
     }
     // if creep is supposed to harvest energy from source
     else {
+        //console.log(creep.name);
+        //console.log(creep.memory.currentFlag.pos.roomName + " " + creep.name);
         //Find remote source
-        var remoteSource = Game.flags.haulEnergy;
-        if (remoteSource != undefined) {
+        var flagRoom = creep.memory.currentFlag.pos.roomName;
+        var enerSource = Game.rooms[flagRoom].find(FIND_SOURCES);
+        if (enerSource != undefined) {
             // Find exit to target room
             creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
                             //var creep = res.findClosestCarrier();
                             creep.pickup(res);
                             });
-            if (creep.room.name != remoteSource.pos.roomName) {
+            if (creep.room.name != enerSource[0].pos.roomName) {
                 //still in old room, go out
-                creep.travelTo(remoteSource);
+                creep.travelTo(enerSource[0]);
             }
             else {
                 creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
@@ -93,10 +96,13 @@ module.exports = function (creep) {
                 });
                 //new room reached, start collecting
                 if (!creep.room.memory.hostiles || creep.room.memory.hostiles.length == 0) {
-                    let flag = Game.flags.haulEnergy;
-                    //No enemy creeps
-                    let container = flag.pos.lookFor(LOOK_STRUCTURES);
-                    container = _.filter(container, {structureType: STRUCTURE_CONTAINER});
+                    
+                    var container = Game.rooms[flagRoom].find(FIND_STRUCTURES, {
+                        filter: function(object)
+                        {
+                            return object.structureType === STRUCTURE_CONTAINER;
+                        } });
+                      
                     if (container.length > 0) {
                         for (let s in container[0].store) {
                             if (creep.withdraw(container[0], s) == ERR_NOT_IN_RANGE) {
@@ -107,13 +113,11 @@ module.exports = function (creep) {
                     }
                     else 
                     {
-                        creep.travelTo(flag);
+                        creep.travelTo(enerSource[0]);
                         creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
                             //var creep = res.findClosestCarrier();
                             creep.pickup(res);
                         });
-                       
-                        //console.log ('creep.roleCollector();');
                     }
                 }
                 else {

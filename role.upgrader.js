@@ -6,7 +6,7 @@
     {
         if(creep.pos.roomName != creep.memory.home.name)
         {
-            creep.travelTo(Game.rooms[creep.memory.home.name].controller);
+            creep.moveTo(Game.rooms[creep.memory.home.name].controller);
         }
         else
         {
@@ -28,7 +28,7 @@
                     });
 
                     var spwn = creep.pos.findClosestByRange(FIND_MY_SPAWNS);
-                    creep.travelTo(spwn);
+                    creep.moveTo(spwn);
                     spwn.transferEnergy(creep);
                 }   
                 else if(containers.length > 0)
@@ -44,7 +44,7 @@
                         
                         if(creep.withdraw(containers[i], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE && (total > 100) ) 
                         {
-                            creep.travelTo(containers[i]);
+                            creep.moveTo(containers[i]);
                         }
                         else
                         {
@@ -56,16 +56,16 @@
                             {
                                 if((_.sum(creep.room.storage.store) > 4000) && (creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE))
                                 {
-                                    creep.travelTo(creep.room.storage);
+                                    creep.moveTo(creep.room.storage);
                                 }
                                 else if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) 
                                 {
-                                    creep.travelTo(sources[0]);
+                                    creep.moveTo(sources[0]);
                                 }
                             }
                             else if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) 
                             {
-                                creep.travelTo(sources[0]);
+                                creep.moveTo(sources[0]);
                             }
                         }    
 
@@ -83,7 +83,7 @@
                         {
                             if(creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                             {
-                                creep.travelTo(creep.room.storage);
+                                creep.moveTo(creep.room.storage);
                             }
                             else
                             {
@@ -92,7 +92,7 @@
                         }
                         else if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) 
                         {
-                            creep.travelTo(sources[0]);
+                            creep.moveTo(sources[0]);
                         }
                     }
                 }    
@@ -101,7 +101,7 @@
             {
                 if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) 
                 {
-                    creep.travelTo(creep.room.controller);
+                    creep.moveTo(creep.room.controller);
                 }
             }
         }

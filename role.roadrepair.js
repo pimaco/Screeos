@@ -2,7 +2,7 @@ module.exports = function (creep) {
     
     if(creep.pos.roomName != creep.memory.home.name)
     {
-        creep.travelTo(Game.rooms[creep.memory.home.name].controller);
+        creep.moveTo(Game.rooms[creep.memory.home.name].controller);
     }
     else
     {
@@ -51,7 +51,7 @@ module.exports = function (creep) {
             {  
                 if(creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                 {
-                    creep.travelTo(creep.room.storage);
+                    creep.moveTo(creep.room.storage);
                 }
             }
             else if(containers.length > 0)
@@ -63,14 +63,14 @@ module.exports = function (creep) {
                     
                     if(creep.withdraw(containers[i], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE && (total > 50) ) 
                     {
-                        creep.travelTo(containers[i]);
+                        creep.moveTo(containers[i]);
                     }
                     else
                     {
                         var source = creep.pos.findClosestByRange(FIND_SOURCES);
                         if(creep.harvest(source) == ERR_NOT_IN_RANGE) 
                         {
-                            creep.travelTo(source);
+                            creep.moveTo(source);
                         }
                         else
                         {
@@ -84,7 +84,7 @@ module.exports = function (creep) {
                 var source = creep.pos.findClosestByRange(FIND_SOURCES);
                 if(creep.harvest(source) == ERR_NOT_IN_RANGE) 
                 {
-                    creep.travelTo(source);
+                    creep.moveTo(source);
                 }
                 else
                 {
@@ -103,18 +103,18 @@ module.exports = function (creep) {
             if(SR) 
             {
             // console.log(SR.pos);       
-                creep.travelTo(SR);
+                creep.moveTo(SR);
                 creep.repair(SR);
             }
             else if(SR2) 
             {
             // console.log(SR.pos);       
-                creep.travelTo(SR2);
+                creep.moveTo(SR2);
                 creep.repair(SR2);
             }
             else if(SRMax)
             {
-                creep.travelTo(SRMax);
+                creep.moveTo(SRMax);
                 creep.repair(SRMax);
             }
             else
@@ -126,12 +126,12 @@ module.exports = function (creep) {
                     //console.log('Creep: ' + creep + 'going to build ' + goodtarget);
                     if(creep.build(goodtarget) == ERR_NOT_IN_RANGE) 
                     {
-                        creep.travelTo(goodtarget);
+                        creep.moveTo(goodtarget);
                     }
                 }
                 else if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) 
                 {
-                    creep.travelTo(creep.room.controller);
+                    creep.moveTo(creep.room.controller);
                 }
             }
         }
