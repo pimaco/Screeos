@@ -74,11 +74,12 @@ module.exports = function (creep) {
     }
     // if creep is supposed to harvest energy from source
     else {
-        //console.log(creep.name);
-        //console.log(creep.memory.currentFlag.pos.roomName + " " + creep.name);
-        //Find remote source
-        var flagRoom = creep.memory.currentFlag.pos.roomName;
+        //Find remote source.
+        //console.log(creep.pos);
+        var flagRoom = creep.memory.currentFlag.room.name;
+        
         var enerSource = Game.rooms[flagRoom].find(FIND_SOURCES);
+        var remoteSource = creep.memory.currentFlag;
         if (enerSource != undefined) {
             // Find exit to target room
             creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
