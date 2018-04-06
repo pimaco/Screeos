@@ -28,21 +28,6 @@ module.exports = function (creep) {
                     creep.travelTo(target);
                 }
             }
-            else
-            {
-                if(creep.memory.home.name == Memory.myrooms[0].name)
-                {
-                    creep.travelTo(Game.flags.Flag1);
-                }
-                else if (creep.memory.home.name == Memory.myrooms[1].name)
-                {
-                    creep.travelTo(Game.flags.Flag2);
-                }
-                else if (creep.memory.home.name == Memory.myrooms[2].name)
-                {
-                    creep.travelTo(Game.flags.Flag3);
-                }
-            }
         }
     }
 

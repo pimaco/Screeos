@@ -76,55 +76,58 @@ module.exports = function (creep) {
     else {
         //Find remote source.
         //console.log(creep.pos);
-        var flagRoom = creep.memory.currentFlag.room.name;
-        
-        var enerSource = Game.rooms[flagRoom].find(FIND_SOURCES);
-        var remoteSource = creep.memory.currentFlag;
-        if (enerSource != undefined) {
-            // Find exit to target room
-            creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                            //var creep = res.findClosestCarrier();
-                            creep.pickup(res);
-                            });
-            if (creep.room.name != enerSource[0].pos.roomName) {
-                //still in old room, go out
-                creep.travelTo(enerSource[0]);
-            }
-            else {
+        if(creep.memory.currentFlag.room)
+        {
+            var flagRoom = creep.memory.currentFlag.room.name;
+            
+            var enerSource = Game.rooms[flagRoom].find(FIND_SOURCES);
+            var remoteSource = creep.memory.currentFlag;
+            if (enerSource != undefined) {
+                // Find exit to target room
                 creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                    //var creep = res.findClosestCarrier();
-                    creep.pickup(res);
-                });
-                //new room reached, start collecting
-                if (!creep.room.memory.hostiles || creep.room.memory.hostiles.length == 0) {
-                    
-                    var container = Game.rooms[flagRoom].find(FIND_STRUCTURES, {
-                        filter: function(object)
-                        {
-                            return object.structureType === STRUCTURE_CONTAINER;
-                        } });
-                      
-                    if (container.length > 0) {
-                        for (let s in container[0].store) {
-                            if (creep.withdraw(container[0], s) == ERR_NOT_IN_RANGE) {
-                                creep.travelTo(container[0]);
-                                //creep.useFlowPathTo(container[0].pos);
-                            }
-                        }
-                    }
-                    else 
-                    {
-                        creep.travelTo(enerSource[0]);
-                        creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                            //var creep = res.findClosestCarrier();
-                            creep.pickup(res);
-                        });
-                    }
+                                //var creep = res.findClosestCarrier();
+                                creep.pickup(res);
+                                });
+                if (creep.room.name != enerSource[0].pos.roomName) {
+                    //still in old room, go out
+                    creep.travelTo(enerSource[0]);
                 }
                 else {
-                    //Hostiles creeps in new room
-                    creep.memory.fleeing = true;
-                    creep.travelTo(Game.rooms[creep.memory.home.name].controller);
+                    creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
+                        //var creep = res.findClosestCarrier();
+                        creep.pickup(res);
+                    });
+                    //new room reached, start collecting
+                    if (!creep.room.memory.hostiles || creep.room.memory.hostiles.length == 0) {
+                        
+                        var container = Game.rooms[flagRoom].find(FIND_STRUCTURES, {
+                            filter: function(object)
+                            {
+                                return object.structureType === STRUCTURE_CONTAINER;
+                            } });
+                        
+                        if (container.length > 0) {
+                            for (let s in container[0].store) {
+                                if (creep.withdraw(container[0], s) == ERR_NOT_IN_RANGE) {
+                                    creep.travelTo(container[0]);
+                                    //creep.useFlowPathTo(container[0].pos);
+                                }
+                            }
+                        }
+                        else 
+                        {
+                            creep.travelTo(enerSource[0]);
+                            creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
+                                //var creep = res.findClosestCarrier();
+                                creep.pickup(res);
+                            });
+                        }
+                    }
+                    else {
+                        //Hostiles creeps in new room
+                        creep.memory.fleeing = true;
+                        creep.travelTo(Game.rooms[creep.memory.home.name].controller);
+                    }
                 }
             }
         }

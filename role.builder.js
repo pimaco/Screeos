@@ -24,8 +24,8 @@ var roleBuilder = {
             {
                 if(sources.length > 1)
                 {
-                    var path0 =  creep.pos.findPathTo(sources[0], {maxOps: 1200});
-                    var path1 =  creep.pos.findPathTo(sources[1], {maxOps: 1200});
+                    var path1 =  creep.pos.findPathTo(sources[0], {maxOps: 1200});
+                    var path0 =  creep.pos.findPathTo(sources[1], {maxOps: 1200});
 
                     if(path0.length < path1.length && sources[0].energy > 0)
                     {
