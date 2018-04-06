@@ -1,5 +1,5 @@
 module.exports = function (creep) {
-    if(creep.memory.currentFlag.room)
+    if(creep.memory.currentFlag.room && Game.rooms[creep.memory.currentFlag.room.name])
     {    
         if (creep.memory.statusHarvesting == undefined || creep.memory.statusHarvesting == false || creep.carry.energy == creep.carryCapacity) 
         {

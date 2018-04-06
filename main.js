@@ -621,7 +621,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
                     roadrepairers[index] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'roadrepair' && creep.memory.home.name == activeRoom.name;}); 
                 }	
             }
-            else if(roadrepairers[6].length < 0)
+            else if(roadrepairers[6].length < 1)
             {
     
                 if(activeSpawns[0].canCreateCreep([WORK,CARRY,MOVE]) == OK)

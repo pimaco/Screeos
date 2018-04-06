@@ -76,7 +76,7 @@ module.exports = function (creep) {
     else {
         //Find remote source.
         //console.log(creep.pos);
-        if(creep.memory.currentFlag.room)
+       if(creep.memory.currentFlag.room && Game.rooms[creep.memory.currentFlag.room.name])
         {
             var flagRoom = creep.memory.currentFlag.room.name;
             
