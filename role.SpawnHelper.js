@@ -5,7 +5,7 @@ var roleSpawnHelper = {
     {
         if(creep.pos.roomName != creep.memory.home.name)
         {
-            creep.travelTo(Game.rooms[creep.memory.home.name].controller);
+            creep.moveTo(Game.rooms[creep.memory.home.name].controller);
         }
         else
         {
@@ -48,12 +48,19 @@ var roleSpawnHelper = {
                 {
                     if(creep.transfer(SpawnInRoom[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) 
                     {
-                        creep.travelTo(SpawnInRoom[0]);
+                        creep.moveTo(SpawnInRoom[0]);
+                    }
+                }
+                else if(SpawnInRoom.length > 1 && SpawnInRoom[1].energy < SpawnInRoom[1].energyCapacity ) 
+                {
+                    if(creep.transfer(SpawnInRoom[1], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) 
+                    {
+                        creep.moveTo(SpawnInRoom[1]);
                     }
                 }
                 else if(SR)
                 {
-                    creep.travelTo(SR);
+                    creep.moveTo(SR);
                     creep.transfer(SR, RESOURCE_ENERGY);
                 }
                 else if(towers.length > 0)
@@ -62,7 +69,7 @@ var roleSpawnHelper = {
                     {
                         if(towers[0].energy < towers[0].energyCapacity)
                         {
-                            creep.travelTo(towers[0]);
+                            creep.moveTo(towers[0]);
                             creep.transfer(towers[0], RESOURCE_ENERGY);
                         }
                     }
@@ -70,12 +77,12 @@ var roleSpawnHelper = {
                     {
                         if(towers[0].energy < towers[0].energyCapacity)
                         {
-                            creep.travelTo(towers[0]);
+                            creep.moveTo(towers[0]);
                             creep.transfer(towers[0], RESOURCE_ENERGY);
                         }
                         else if(towers[1].energy < towers[1].energyCapacity)
                         {
-                            creep.travelTo(towers[1]);
+                            creep.moveTo(towers[1]);
                             creep.transfer(towers[1], RESOURCE_ENERGY);
                         }
                     }
@@ -86,17 +93,17 @@ var roleSpawnHelper = {
                             
                             if(towers[0].energy < towers[0].energyCapacity)
                             {
-                                creep.travelTo(towers[0]);
+                                creep.moveTo(towers[0]);
                                 creep.transfer(towers[0], RESOURCE_ENERGY);
                             }
                             else if(towers[1].energy < towers[1].energyCapacity)
                             {
-                                creep.travelTo(towers[1]);
+                                creep.moveTo(towers[1]);
                                 creep.transfer(towers[1], RESOURCE_ENERGY);
                             }
                             else if(towers[2].energy < towers[2].energyCapacity)
                             {
-                                creep.travelTo(towers[2]);
+                                creep.moveTo(towers[2]);
                                 creep.transfer(towers[2], RESOURCE_ENERGY);
                             }
                         }
@@ -104,7 +111,7 @@ var roleSpawnHelper = {
                 }
                 else
                 {
-                    creep.travelTo(SpawnInRoom[0]);
+                    creep.moveTo(SpawnInRoom[0]);
                 }
             }
             else if(creep.carry.energy < creep.carryCapacity )//&& (creep.carry.energy != 50) ) 
@@ -123,7 +130,7 @@ var roleSpawnHelper = {
                 {
                     if(creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                     {
-                        creep.travelTo(creep.room.storage);
+                        creep.moveTo(creep.room.storage);
                     }
                 }    
                 else if(containers.length > 0)
@@ -135,7 +142,7 @@ var roleSpawnHelper = {
                         
                         if(creep.withdraw(containers[i], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE && (total > 100) ) 
                         {
-                            creep.travelTo(containers[i]);
+                            creep.moveTo(containers[i]);
                         }
                     }
                 }

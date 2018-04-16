@@ -10,6 +10,15 @@
         }
         else
         {
+            if(creep.room.storage)
+            {
+                var totalS = (creep.room.storage.store[RESOURCE_ENERGY] );
+            }
+            else
+            {
+                var totalS = 0;
+            }   
+            
             if(((creep.carry.energy < creep.carryCapacity) && (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE)) || creep.carry.energy == 0  ) 
             {
                 var sources = creep.room.find(FIND_SOURCES);
@@ -20,18 +29,7 @@
                         return object.structureType === STRUCTURE_CONTAINER;
                     } });
                 // console.log(containers);
-                if(Game.spawns.Spawn1.energy > 1000 && creep.harvest(sources[0]) == ERR_NOT_IN_RANGE )
-                {
-                    creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                        //var creep = res.findClosestCarrier();
-                        creep.pickup(res);
-                    });
-
-                    var spwn = creep.pos.findClosestByRange(FIND_MY_SPAWNS);
-                    creep.moveTo(spwn);
-                    spwn.transferEnergy(creep);
-                }   
-                else if(containers.length > 0)
+                if(containers.length > 0 && totalS < 200)
                 {
                     creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
                         //var creep = res.findClosestCarrier();

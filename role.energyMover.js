@@ -8,7 +8,7 @@ var roleEnergyMover = {
 
         if(creep.pos.roomName != creep.memory.home.name)
         {
-            creep.travelTo(Game.rooms[creep.memory.home.name].controller);
+            creep.moveTo(Game.rooms[creep.memory.home.name].controller);
         }
         else
         {    
@@ -17,11 +17,22 @@ var roleEnergyMover = {
                 {
                     return object.structureType === STRUCTURE_CONTAINER;
                 } });
-        
-            var links = creep.room.find(FIND_STRUCTURES,{filter: function(object) 
+            if(creep.room.storage)
+            {
+                var links = creep.room.storage.pos.findClosestByRange(FIND_STRUCTURES,{filter: function(object) 
                 {
                     return object.structureType === STRUCTURE_LINK
                  }});
+                // console.log(links);
+            }
+            else
+            {
+                 var links = creep.pos.findClosestByPath(FIND_STRUCTURES,{filter: function(object) 
+                {
+                    return object.structureType === STRUCTURE_LINK
+                 }});
+            }
+            
             var labs =   creep.room.find(FIND_STRUCTURES,{filter: function(object) 
                 {
                     return object.structureType === STRUCTURE_LAB
@@ -55,7 +66,7 @@ var roleEnergyMover = {
                 //console.log(creep.pos);
             }
             //console.log(creep.pos.x);
-            if(containers.length > 0 || links.length > 0)
+            if(containers.length > 0 || links)
             {   
                 if(creep.memory.varresource == RESOURCE_ENERGY)
                 {
@@ -93,13 +104,13 @@ var roleEnergyMover = {
                     }
                     else
                     {
-                        if(links.length > 0)
+                        if(links)
                         {
-                            var totalLink = links[0].energy;
+                            var totalLink = links.energy;
             
                             if(totalLink >= 200)
                             {
-                                creep.memory.containerSource = links[0];
+                                creep.memory.containerSource = links;
                             //console.log('source is now: ' + links[0]);
                             }
                             else if(total[i] >= 400 && creep.memory.containerSource == null )
@@ -139,7 +150,7 @@ var roleEnergyMover = {
                                 break;
                             }
                         }
-                        
+
                         if(creep.carry.energy > 0 && (creep.memory.containerTarget == null || creep.memory.containerTarget == creep.room.storage))
                         {
                              creep.memory.containerTarget = creep.room.storage;
@@ -152,18 +163,30 @@ var roleEnergyMover = {
                                 creep.memory.containerSource = creep.room.terminal;
                                 creep.memory.containerTarget = labs[0];
                             }
-                            else if(labs[2] && (labs[2].mineralType == RESOURCE_OXYGEN || labs[2].mineralType == undefined) && labs[2].mineralAmount < (labs[2].mineralCapacity - creep.carryCapacity)&& creep.room.terminal.store[RESOURCE_OXYGEN] > 0)
+                            else if(labs[2] && (labs[2].mineralType == RESOURCE_HYDROGEN || labs[2].mineralType == undefined) && labs[2].mineralAmount < (labs[2].mineralCapacity - creep.carryCapacity)&& creep.room.terminal.store[RESOURCE_HYDROGEN] > 0)
                             {
-                                creep.memory.varresource = RESOURCE_OXYGEN;
+                                creep.memory.varresource = RESOURCE_HYDROGEN;
                                 creep.memory.containerSource = creep.room.terminal;
                                 creep.memory.containerTarget = labs[2];
                             }
-                            else if(labs[1] && (labs[1].mineralType == RESOURCE_UTRIUM_OXIDE) && labs[1].mineralAmount >= creep.carryCapacity)
+                            else if(labs.length < 6 && labs[1] && (labs[1].mineralType == RESOURCE_UTRIUM_HYDRIDE) && labs[1].mineralAmount >= creep.carryCapacity)
                             {
-                                creep.memory.varresource = RESOURCE_UTRIUM_OXIDE;
+                                creep.memory.varresource = RESOURCE_UTRIUM_HYDRIDE;
                                 creep.memory.containerSource = labs[1];
                                 creep.memory.containerTarget = creep.room.terminal;
                             }
+                            else if(labs[3] && (labs[3].mineralType == RESOURCE_OXYGEN || labs[3].mineralType == undefined) && labs[3].mineralAmount < (labs[3].mineralCapacity - creep.carryCapacity)&& creep.room.terminal.store[RESOURCE_OXYGEN] > 0)
+                            {
+                                creep.memory.varresource = RESOURCE_OXYGEN;
+                                creep.memory.containerSource = creep.room.terminal;
+                                creep.memory.containerTarget = labs[3];
+                            }
+                            else if(labs.length == 6 && labs[4] && (labs[4].mineralType == RESOURCE_UTRIUM_ACID) && labs[4].mineralAmount >= creep.carryCapacity)
+                            {
+                                creep.memory.varresource = RESOURCE_UTRIUM_ACID;
+                                creep.memory.containerSource = labs[4];
+                                creep.memory.containerTarget = creep.room.terminal;
+                            }                            
                             else
                             {
                                 creep.memory.varresource = RESOURCE_ENERGY;
@@ -192,7 +215,7 @@ var roleEnergyMover = {
                     }
                     if(creep.withdraw(source, creep.memory.varresource) == ERR_NOT_IN_RANGE)
                     {
-                        creep.travelTo(source);   
+                        creep.moveTo(source);   
                     }
                     else
                     {
@@ -210,7 +233,7 @@ var roleEnergyMover = {
                     //console.log(creep.transfer(target, _.findKey(creep.carry)));
                     if(creep.transfer(target, _.findKey(creep.carry)) == ERR_NOT_IN_RANGE)
                     {
-                        creep.travelTo(target);                  
+                        creep.moveTo(target);                  
                     }
                     else
                     {

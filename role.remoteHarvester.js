@@ -12,6 +12,7 @@ module.exports = function (creep) {
                 var flagRoom = creep.memory.currentFlag.pos.roomName;
                 var enerSource = Game.rooms[flagRoom].find(FIND_SOURCES);
                 var sourceKeeper = [];
+                
 
                 if (flagRoom != undefined) {
                     if (flagRoom != creep.room.name) {
@@ -97,7 +98,15 @@ module.exports = function (creep) {
                     }
                     else if (sourceKeeper.length == 0) {
                         // Move to harvesting point
-                        creep.travelTo(enerSource[0]);
+                        if(creep.memory.currentFlag.name == "remote8")
+                        {
+                            creep.travelTo(enerSource[1]);
+                        }
+                        else
+                        {
+                            creep.travelTo(enerSource[0]);
+                        }
+                        
                     }
                 }
                 else {

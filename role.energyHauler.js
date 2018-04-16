@@ -107,10 +107,16 @@ module.exports = function (creep) {
                             } });
                         
                         if (container.length > 0) {
-                            for (let s in container[0].store) {
-                                if (creep.withdraw(container[0], s) == ERR_NOT_IN_RANGE) {
-                                    creep.travelTo(container[0]);
-                                    //creep.useFlowPathTo(container[0].pos);
+                            for (var k = 0, len = container.length; k < len; k++)
+                            {
+                                if(_.sum(container[k].store) > 0)
+                                {
+                                    for (let s in container[k].store) {
+                                        if (creep.withdraw(container[k], s) == ERR_NOT_IN_RANGE) {
+                                            creep.travelTo(container[k]);
+                                            //creep.useFlowPathTo(container[0].pos);
+                                        }
+                                    }
                                 }
                             }
                         }
