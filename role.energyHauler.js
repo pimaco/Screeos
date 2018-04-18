@@ -1,4 +1,8 @@
 module.exports = function (creep) {
+    creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
+        //var creep = res.findClosestCarrier();
+        creep.pickup(res);
+        });
     if (_.sum(creep.carry) == 0) {
         // switch state to collecting
         if (creep.memory.working == true) {
@@ -84,19 +88,11 @@ module.exports = function (creep) {
             var remoteSource = creep.memory.currentFlag;
             if (enerSource != undefined) {
                 // Find exit to target room
-                creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                                //var creep = res.findClosestCarrier();
-                                creep.pickup(res);
-                                });
                 if (creep.room.name != enerSource[0].pos.roomName) {
                     //still in old room, go out
                     creep.travelTo(enerSource[0]);
                 }
                 else {
-                    creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                        //var creep = res.findClosestCarrier();
-                        creep.pickup(res);
-                    });
                     //new room reached, start collecting
                     if (!creep.room.memory.hostiles || creep.room.memory.hostiles.length == 0) {
                         
@@ -123,10 +119,6 @@ module.exports = function (creep) {
                         else 
                         {
                             creep.travelTo(enerSource[0]);
-                            creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                                //var creep = res.findClosestCarrier();
-                                creep.pickup(res);
-                            });
                         }
                     }
                     else {

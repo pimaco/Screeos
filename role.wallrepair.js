@@ -13,13 +13,16 @@ module.exports = function (creep) {
                     return object.structureType === STRUCTURE_WALL && (object.hits < 10000 );
                 } 
             });
-        var SR2 = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+        if(!SR || SR == null)
+        {
+            var SR2 = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: function(object)
                 {
                     return object.structureType === STRUCTURE_RAMPART && (object.hits < 10000 );
                 } 
-                });    
-        if(!SR && !SR2)
+            });  
+        }  
+        if((!SR || SR == null ) && !SR2 || SR2 == null)
         {
             var SR = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: function(object)
@@ -27,12 +30,15 @@ module.exports = function (creep) {
                     return object.structureType === STRUCTURE_WALL && (object.hits < 50000 );
                 } 
             });
-            var SR2 = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                filter: function(object)
-                {
-                    return object.structureType === STRUCTURE_RAMPART && (object.hits < 50000 );
-                } 
-            }); 
+            if(!SR || SR == null)
+            {
+                var SR2 = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+                    filter: function(object)
+                    {
+                        return object.structureType === STRUCTURE_RAMPART && (object.hits < 50000 );
+                    } 
+                }); 
+            }
         }    
         if(((creep.carry.energy < creep.carryCapacity) && (((creep.repair(SR) == ERR_NOT_IN_RANGE)  && (creep.repair(SR2) == ERR_NOT_IN_RANGE)) && (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE))) || creep.carry.energy == 0  ) 
         {

@@ -9,6 +9,11 @@ var roleSpawnHelper = {
         }
         else
         {
+            creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
+                //var creep = res.findClosestCarrier();
+                creep.pickup(res);
+            });
+            
             var SR = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: function(object)
                 {
@@ -37,10 +42,6 @@ var roleSpawnHelper = {
 
             if(creep.carry.energy > 0)
             {
-                creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                    //var creep = res.findClosestCarrier();
-                    creep.pickup(res);
-                });
                     //console.log(creep.name + '  ' + towers);
                 
                //console.log(creep.name + '   ' + SpawnInRoom[0].energy);
@@ -121,10 +122,6 @@ var roleSpawnHelper = {
                     {
                         return object.structureType === STRUCTURE_CONTAINER;
                     } });
-                creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                    //var creep = res.findClosestCarrier();
-                    creep.pickup(res);
-                    });
                  //console.log(containers);
                 if(creep.room.storage && totalS > 1500 )
                 {

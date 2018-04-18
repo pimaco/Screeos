@@ -1,6 +1,10 @@
 module.exports = function (creep) {
     if(creep.memory.currentFlag.room && Game.rooms[creep.memory.currentFlag.room.name])
-    {    
+    {  
+        creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
+            //var creep = res.findClosestCarrier();
+            creep.pickup(res);
+        });  
         if (creep.memory.statusHarvesting == undefined || creep.memory.statusHarvesting == false || creep.carry.energy == creep.carryCapacity) 
         {
             if (creep.memory.currentFlag == undefined) {
@@ -82,10 +86,7 @@ module.exports = function (creep) {
                                 creep.memory.sleep = source.ticksToRegeneration;
                             }
                             else {
-                                creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                                    //var creep = res.findClosestCarrier();
-                                    creep.pickup(res);
-                                })
+                                
                                 if (creep.harvest(source) != OK) {
                                     creep.memory.statusHarvesting = false;
                                     delete creep.memory.source;
@@ -122,10 +123,6 @@ module.exports = function (creep) {
         else {
             // Creep is harvesting, try to keep harvesting
             var source = Game.getObjectById(creep.memory.statusHarvesting);
-            creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                //var creep = res.findClosestCarrier();
-                creep.pickup(res);
-            })
             if (creep.harvest(source) != OK || creep.carry.energy == creep.carryCapacity) {
                 creep.memory.statusHarvesting = false;
             }

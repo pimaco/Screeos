@@ -12,19 +12,28 @@ module.exports = function (creep) {
                 return object.structureType === STRUCTURE_ROAD && (object.hits < 1000 );
             } 
         });
-        var SRMax = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-            filter: function(object)
-            {
-                return object.structureType === STRUCTURE_ROAD && (object.hits < object.hitsMax );
-            } 
-        });
+        if(!SR || SR == null)
+        {
+            var SR2 = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+                filter: function(object)
+                {
+                    return object.structureType === STRUCTURE_CONTAINER && (object.hits < 250000 );
+                } 
+            });
+            
+        }
+        if ((!SR || SR == null) && !SR2 || SR2 == null)
+        {
+            
+            var SRMax = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+                filter: function(object)
+                {
+                    return object.structureType === STRUCTURE_ROAD && (object.hits < object.hitsMax );
+                } 
+            });    
+        }
 
-        var SR2 = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-            filter: function(object)
-            {
-                return object.structureType === STRUCTURE_CONTAINER && (object.hits < 250000 );
-            } 
-        });
+        var source = creep.pos.findClosestByRange(FIND_SOURCES);
 
         if(creep.memory.Harvest && creep.carry.energy == 0) 
         {
@@ -67,7 +76,6 @@ module.exports = function (creep) {
                     }
                     else
                     {
-                        var source = creep.pos.findClosestByRange(FIND_SOURCES);
                         if(creep.harvest(source) == ERR_NOT_IN_RANGE) 
                         {
                             creep.moveTo(source);
@@ -81,7 +89,6 @@ module.exports = function (creep) {
             }
             else
             {
-                var source = creep.pos.findClosestByRange(FIND_SOURCES);
                 if(creep.harvest(source) == ERR_NOT_IN_RANGE) 
                 {
                     creep.moveTo(source);
@@ -94,7 +101,6 @@ module.exports = function (creep) {
         }
         else if (creep.memory.Harvest && creep.carry.energy < creep.carryCapacity)
         {
-            var source = creep.pos.findClosestByRange(FIND_SOURCES);
             creep.harvest(source);
         }
         else

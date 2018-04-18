@@ -10,6 +10,11 @@
         }
         else
         {
+            creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
+                //var creep = res.findClosestCarrier();
+                creep.pickup(res);
+            });
+
             if(creep.room.storage)
             {
                 var totalS = (creep.room.storage.store[RESOURCE_ENERGY] );
@@ -31,10 +36,6 @@
                 // console.log(containers);
                 if(containers.length > 0 && totalS < 200)
                 {
-                    creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                        //var creep = res.findClosestCarrier();
-                        creep.pickup(res);
-                    });
                     
                     for (var i = 0, len = containers.length; i < len; i++)
                     {        
@@ -46,10 +47,6 @@
                         }
                         else
                         {
-                            creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                                //var creep = res.findClosestCarrier();
-                                creep.pickup(res);
-                            });
                             if(creep.room.storage)
                             {
                                 if((_.sum(creep.room.storage.store) > 4000) && (creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE))
@@ -71,13 +68,9 @@
                 }
                 else
                 {
-                    creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                        //var creep = res.findClosestCarrier();
-                        creep.pickup(res);
-                    });
                     if(creep.room.storage)
                     {
-                        if(_.sum(creep.room.storage.store) > 5000)
+                        if(_.sum(creep.room.storage.store) > 1000)
                         {
                             if(creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                             {
@@ -101,6 +94,7 @@
                 {
                     creep.moveTo(creep.room.controller);
                 }
+                creep.moveTo(creep.room.controller);
             }
         }
 	}

@@ -9,7 +9,6 @@ var roleDefense = require('role.defense');
 var roleTower = require('role.tower');
 var roleMiner2 = require('role.miner2');
 const profiler = require('screeps.profiler');
-var roleLinker = require('role.linker');
 var roleAttacker = require('role.attacker');
 var roleupcrossroom = require('role.upcrossroom');
 var roleExtractor = require('role.extractor');
@@ -75,7 +74,6 @@ module.exports.loop = function () {
 	global.spawnhelpers = []; 
 	global.miners = []; 
 	global.miners2 = []; 
-	global.linkers = []; 
 	global.upcrossers = []; 
 	global.extractors = []; 
     global.energyMovers = []; 
@@ -96,7 +94,6 @@ module.exports.loop = function () {
         spawnhelpers[j] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'spawnhelper' && creep.memory.home.name == controlledRooms[j].name;});
         miners[j] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'miner' && creep.memory.home.name == controlledRooms[j].name;});
         miners2[j] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'miner2' && creep.memory.home.name == controlledRooms[j].name;});
-        linkers[j] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'linker' && creep.memory.home.name == controlledRooms[j].name;});
         upcrossers[j] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'upcrosser' && creep.memory.home.name == controlledRooms[j].name;});
         extractors[j] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'extractor' && creep.memory.home.name == controlledRooms[j].name;});
         energyMovers[j] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'energyMover' && creep.memory.home.name == controlledRooms[j].name;});
@@ -122,7 +119,7 @@ module.exports.loop = function () {
     global.arrayFlag = [];
     global.destRoom = [];
 
-    numberOfHauler = [2,0,3,3,3,2,2,2,0];
+    numberOfHauler = [2,0,4,3,3,2,2,2,0];
     arrayFlag = [Game.flags.remote0, Game.flags.remote1, Game.flags.remote2, Game.flags.remote3, Game.flags.remote4, Game.flags.remote5, Game.flags.remote6, Game.flags.remote7, Game.flags.remote8];
     destRoom = [Game.rooms['W62N27'], Game.rooms['W62N29'], Game.rooms['W63N29'], Game.rooms['W62N27'], Game.rooms['W62N29'], Game.rooms['W63N27'], Game.rooms['W63N26'], Game.rooms['W66N31']];
 
@@ -276,10 +273,6 @@ module.exports.loop = function () {
         {
             roleBuilder.run(creep);
         }
-        else if(creep.memory.role == 'linker')
-        {
-            roleLinker.run(creep);
-        }	
         else if(creep.memory.role == 'roadrepair')
         {
             roadRepair(creep);
@@ -482,7 +475,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
                     spawnhelpers[index] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'spawnhelper' && creep.memory.home.name == activeRoom.name;});
                 }		
             }
-            else if(miners2[index].length < 1 && nbContainersAtSource[0].length > 0)
+            else if((miners2[index].length < 1 || (miners2[index].length < 2 && miners2[index][0].ticksToLive < 75 )) && nbContainersAtSource[0].length > 0)
             {      
                 if(activeSpawns[0].spawnCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE],'testSpawn', { dryRun: true}) == OK)
                 {	
@@ -507,7 +500,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
                     console.log('Spawning new miner2 ' + activeRoom.name );
                 }
             }
-            else if(miners[index].length < 1 && sources.length > 1 && nbContainersAtSource[1].length > 0)
+            else if((miners[index].length < 1 || (miners[index].length <2 && miners[index][0].ticksToLive < 75)) && sources.length > 1 && nbContainersAtSource[1].length > 0)
             { 
                 if(activeSpawns[0].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY],'testSpawn', { dryRun: true}) == OK)
                 {
@@ -605,9 +598,9 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
             }*/
             else if(((((upgraders[index].length < 3 && sources.length > 1) ||(upgraders[index].length < 1 && sources.length == 1) || (upgraders[index].length < 2 && sources.length == 1 && activeRoom.storage) ) && activeRoom.controller.level < 6 ) || (upgraders[index].length < 1 && activeRoom.controller.level > 7)) && nbContainersInRoom[index].length > 0)
             {
-                if(activeSpawns[0].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY],'testSpawn', { dryRun: true}) == OK)
+                if(activeSpawns[0].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY],'testSpawn', { dryRun: true}) == OK)
                 {
-                    activeSpawns[0].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'UpgraderHi_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'upgrader', home: activeRoom}});
+                    activeSpawns[0].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'Upgrader_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'upgrader', home: activeRoom}});
                     console.log('Spawning new upgrader ' + activeRoom.name );
                     upgraders[index] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'upgrader' && creep.memory.home.name == activeRoom.name;});
                 }
@@ -830,7 +823,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
             {
                 if(activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE],'testSpawn', { dryRun: true}) == OK)
                 {
-                    activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE], 'Claimer_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'claimer', home: activeRoom}});
+                    activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE], 'Claimer1_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'claimer', home: activeRoom}});
                     console.log('Spawning new Claimer from ' + activeRoom.name );
                     claimers = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'claimer';});
                 }
@@ -840,7 +833,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
             {
                 if(activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE],'testSpawn', { dryRun: true}) == OK)
                 {
-                    activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE], 'Claimer_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'claimer2', home: activeRoom}});
+                    activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE], 'Claimer2_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'claimer2', home: activeRoom}});
                     console.log('Spawning new Claimer2 from ' + activeRoom.name );
                     claimers2 = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'claimer2';});
                 }
@@ -850,7 +843,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
             {
                 if(activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE],'testSpawn', { dryRun: true}) == OK)
                 {
-                    activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE], 'Claimer_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'claimer3', home: activeRoom}});
+                    activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE], 'Claimer3_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'claimer3', home: activeRoom}});
                     console.log('Spawning new Claimer3 from ' + activeRoom.name );
                     claimers3 = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'claimer3';});
                 }                  
@@ -859,7 +852,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
             {
                 if(activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE],'testSpawn', { dryRun: true}) == OK)
                 {
-                    activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE], 'Claimer_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'claimer5', home: activeRoom}});
+                    activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE], 'Claimer5_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'claimer5', home: activeRoom}});
                     console.log('Spawning new Claimer5 from ' + activeRoom.name );
                     claimers5 = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'claimer5';});
                 }                  
@@ -868,7 +861,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
             {
                 if(activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE],'testSpawn', { dryRun: true}) == OK)
                 {
-                    activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE], 'Claimer_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'claimer6', home: activeRoom}});
+                    activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE], 'Claimer6' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'claimer6', home: activeRoom}});
                     console.log('Spawning new Claimer6 from ' + activeRoom.name );
                     claimers6 = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'claimer6';});
                 }                  
@@ -877,7 +870,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
             {
                 if(activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE],'testSpawn', { dryRun: true}) == OK)
                 {
-                    activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE], 'Claimer_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'claimer4', home: activeRoom}});
+                    activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE], 'Claimer4_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'claimer4', home: activeRoom}});
                     console.log('Spawning new Claimer4 from ' + activeRoom.name );
                     claimers4 = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'claimer4';});
                 }                  
@@ -886,16 +879,16 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
             {
                 if(activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE],'testSpawn', { dryRun: true}) == OK)
                 {
-                    activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE], 'Claimer_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'claimer7', home: activeRoom}});
+                    activeSpawns[0].spawnCreep([CLAIM,CLAIM,MOVE,MOVE], 'Claimer7_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'claimer7', home: activeRoom}});
                     console.log('Spawning new Claimer7 from ' + activeRoom.name );
                     claimers7 = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'claimer7';});
                 }                  
             }
-            else if(upgraders[index].length < 4 && total > 50000 && activeRoom.controller.level < 8)
+            else if(upgraders[index].length < 5 && total > 50000 && activeRoom.controller.level < 8)
             {
-                if(activeSpawns[0].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY],'testSpawn', { dryRun: true}) == OK)
+                if(activeSpawns[0].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY],'testSpawn', { dryRun: true}) == OK)
                 {
-                    activeSpawns[0].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'UpgraderHi_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'upgrader', home: activeRoom}});
+                    activeSpawns[0].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'UpgraderHi_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'upgrader', home: activeRoom}});
                     console.log('Spawning new upgrader (High storage) ' + activeRoom.name );
                     upgraders[index] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'upgrader' && creep.memory.home.name == activeRoom.name;});
                 }
