@@ -47,8 +47,10 @@ var Inventory = /** @class */ (function () {
             Inventory.updateObsoleteCreeps(room);
             if (room.memory['structures']['storage'] && room.memory['structures']['storage'].length && room.name != 'W63N26') {
                 var storage = Game.getObjectById(room.memory['structures']['storage'][0]);
-                
-                room.memory.storage = storage.store;
+                if(storage)
+                {
+                    room.memory.storage = storage.store;
+                }
                 if (!room.memory.storage.energy)
                     room.memory.storage.energy = 0; //make sure it gets set
             }

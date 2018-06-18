@@ -17,7 +17,7 @@ module.exports = function (creep) {
                 var enerSource = Game.rooms[flagRoom].find(FIND_SOURCES);
                 var sourceKeeper = [];
                 
-
+               // console.log(creep.name + " " + flagRoom);
                 if (flagRoom != undefined) {
                     if (flagRoom != creep.room.name) {
                         // Creep not in assigned room
@@ -99,7 +99,7 @@ module.exports = function (creep) {
                     }
                     else if (sourceKeeper.length == 0) {
                         // Move to harvesting point
-                        if(creep.memory.currentFlag.name == "remote8")
+                        if(creep.memory.currentFlag.name == "remoteExcept")
                         {
                             creep.travelTo(enerSource[1]);
                         }

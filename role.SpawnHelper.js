@@ -13,7 +13,7 @@ var roleSpawnHelper = {
                 //var creep = res.findClosestCarrier();
                 creep.pickup(res);
             });
-            
+
             var SR = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: function(object)
                 {
@@ -109,6 +109,17 @@ var roleSpawnHelper = {
                             }
                         }
                     }
+                    else
+                    {
+                        for (var k = 0, len = towers.length; k < len; k++)
+                        {        
+                            if(towers[k].energy < towers[k].energyCapacity)
+                            {
+                                creep.moveTo(towers[k]);
+                                creep.transfer(towers[k], RESOURCE_ENERGY);
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -123,7 +134,7 @@ var roleSpawnHelper = {
                         return object.structureType === STRUCTURE_CONTAINER;
                     } });
                  //console.log(containers);
-                if(creep.room.storage && totalS > 1500 )
+                if(creep.room.storage && totalS > 300 )
                 {
                     if(creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                     {
