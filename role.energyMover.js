@@ -125,12 +125,12 @@ var roleEnergyMover = {
                     }                 
                 }
 
-                if(creep.room.storage && totalS > 60000 && creep.room.terminal && totalEnerTerm < 50000 && creep.room.controller.level == 8 )
+                if(creep.room.storage && totalS > 30000 && creep.room.terminal && totalEnerTerm < 50000 && creep.room.controller.level ==  8)
                 {
                     creep.memory.containerSource = creep.room.storage;
                     creep.memory.containerTarget = creep.room.terminal;
                 }
-                else if(creep.room.storage && creep.room.terminal && totalEnerTerm > 10000 && creep.room.controller.level < 8)
+                else if(creep.room.storage && creep.room.terminal && totalEnerTerm > 1000 && creep.room.controller.level < 8)
                 {
                     creep.memory.containerSource = creep.room.terminal;
                     creep.memory.containerTarget = creep.room.storage;

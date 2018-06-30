@@ -113,6 +113,11 @@ module.exports = function (creep) {
                                             //creep.useFlowPathTo(container[0].pos);
                                         }
                                     }
+                                    
+                                }
+                                else
+                                {
+                                    creep.travelTo(container[0]);
                                 }
                             }
                         }

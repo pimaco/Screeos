@@ -1,7 +1,7 @@
 module.exports = function (creep) {
     
-    //var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-    var target = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {filter: function (i) { return i.owner.username != 'porkradish' } });
+    var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+    //var target = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {filter: function (i) { return i.owner.username != 'porkradish' } });
     
     if(target) 
     {
