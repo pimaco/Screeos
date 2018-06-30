@@ -1,7 +1,7 @@
 module.exports = function (creep) {
     
-    //var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-    var target = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {filter: function (i) { return i.owner.username != 'porkradish' } });
+    var target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+    //var target = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {filter: function (i) { return i.owner.username != 'porkradish' } });
     
     if(target) 
     {
@@ -22,16 +22,16 @@ module.exports = function (creep) {
         }
         else
         {
-            var targetSpawn =creep.room.find(FIND_HOSTILE_SPAWNS);
+            /*var targetSpawn =creep.room.find(FIND_HOSTILE_SPAWNS);
             if(targetSpawn.length)
             {
                 if(creep.attack(targetSpawn [0]) == ERR_NOT_IN_RANGE)
                 {
                     creep.travelTo(targetSpawn[0]);
                 }
-            }
-            else
-            {
+            }*/
+            //else
+           // {
                 var hostileStruc =creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
                     filter: function(object)
                     {
@@ -45,9 +45,15 @@ module.exports = function (creep) {
                     if(creep.attack(hostileStruc) == ERR_NOT_IN_RANGE )
                     {
                         creep.travelTo(hostileStruc);
+                        creep.attack(hostileStruc);
                     }
+                    creep.attack(hostileStruc);
                 }
-            }
+                else
+                {
+                    creep.travelTo(Game.flags.TOATTACK); 
+                }
+           // }
         }
         
     }

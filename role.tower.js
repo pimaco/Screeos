@@ -9,13 +9,16 @@ module.exports = function (tower) {
                 return object.structureType === STRUCTURE_WALL && (object.hits < 10000 );
             } 
         });
-        var SR2 = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+        if(!SR || SR == null)
+        {
+            var SR2 = tower.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: function(object)
                 {
                     return object.structureType === STRUCTURE_RAMPART && (object.hits < 10000 );
                 } 
-                });    
-        if(!SR && !SR2)
+            });   
+        } 
+        if((!SR || SR == null ) && !SR2 || SR2 == null)
         {
             var SR = tower.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: function(object)
@@ -23,12 +26,15 @@ module.exports = function (tower) {
                     return object.structureType === STRUCTURE_WALL && (object.hits < 50000 );
                 } 
             });
-            var SR2 = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-                filter: function(object)
-                {
-                    return object.structureType === STRUCTURE_RAMPART && (object.hits < 50000 );
-                } 
-            }); 
+            if(!SR || SR == null)
+            {
+                var SR2 = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+                    filter: function(object)
+                    {
+                        return object.structureType === STRUCTURE_RAMPART && (object.hits < 50000 );
+                    } 
+                }); 
+            }
         } 
         if(SR2) 
         {  

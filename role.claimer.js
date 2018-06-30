@@ -1,15 +1,9 @@
 module.exports = function (creep) {
     // Find exit to target room
     var remoteControllerFlag;
-    if (creep.memory.currentFlag == undefined) {
-        remoteControllerFlag = Game.flags.remoteController;
-    }
-    else {
-        remoteControllerFlag = Game.flags[creep.memory.currentFlag];
-    }
-    if (remoteControllerFlag != undefined) {
-        creep.memory.currentFlag = remoteControllerFlag.name;
-    }
+    remoteControllerFlag = Game.flags[creep.memory.currentFlagName];
+  
+    //console.log(creep.name + '    '+ remoteControllerFlag.pos.roomName);
     if (remoteControllerFlag != undefined && creep.room.name != remoteControllerFlag.pos.roomName) {
         //still in wrong room, go out
         creep.travelTo(remoteControllerFlag);
@@ -58,7 +52,7 @@ module.exports = function (creep) {
         else {
             //Hostiles creeps in new room
             creep.memory.fleeing = true;
-            creep.goToHomeRoom()
+            creep.travelTo(Game.rooms[creep.memory.home.name].controller);
         }
     }
 };

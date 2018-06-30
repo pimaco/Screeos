@@ -9,6 +9,10 @@ module.exports = function (creep) {
         }
         else
         {   
+            creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
+                //var creep = res.findClosestCarrier();
+                creep.pickup(res);
+            });
             var sources = creep.room.find(FIND_SOURCES);
             
             if(!creep.memory.sourceToHarvest || creep.memory.sourceToHarvest == null)
@@ -58,10 +62,7 @@ module.exports = function (creep) {
     
             if(creep.memory.upgrade) 
             {
-                creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                    //var creep = res.findClosestCarrier();
-                    creep.pickup(res);
-                    });
+
                 var towers = creep.room.find(
                     FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
                 if(towers[0] && towers[0].energy < towers[0].energyCapacity && creep.room.controller.ticksToDowngrade > 9000)
@@ -111,11 +112,6 @@ module.exports = function (creep) {
                         }
                         else
                         {       
-                            creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                                //var creep = res.findClosestCarrier();
-                                creep.pickup(res);
-                            });
-
                             if(creep.harvest(Game.getObjectById(creep.memory.sourceToHarvest.id)) == ERR_NOT_IN_RANGE) 
                             {
                                creep.travelTo(Game.getObjectById(creep.memory.sourceToHarvest.id));
@@ -126,10 +122,6 @@ module.exports = function (creep) {
                     if(creep.carry.energy < creep.carryCapacity && creep.memory.containerSource != null )
                     {
                         var source = Game.getObjectById(creep.memory.containerSource.id);
-                        creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                            //var creep = res.findClosestCarrier();
-                            creep.pickup(res);
-                            });
                         if(creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                         {
                             creep.travelTo(source);   
@@ -143,10 +135,6 @@ module.exports = function (creep) {
                     }
                     else
                     {
-                        creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                            //var creep = res.findClosestCarrier();
-                            creep.pickup(res);
-                        });
 
                         if(creep.harvest(Game.getObjectById(creep.memory.sourceToHarvest.id)) == ERR_NOT_IN_RANGE) 
                         {
@@ -154,18 +142,14 @@ module.exports = function (creep) {
                         } 
                     }
                 }
-            else
-            {
-                creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                    //var creep = res.findClosestCarrier();
-                creep.pickup(res);
-                });
-
-                if(creep.harvest(Game.getObjectById(creep.memory.sourceToHarvest.id)) == ERR_NOT_IN_RANGE) 
+                else
                 {
-                   creep.travelTo(Game.getObjectById(creep.memory.sourceToHarvest.id));
-                } 
-            }
+                    if(creep.harvest(Game.getObjectById(creep.memory.sourceToHarvest.id)) == ERR_NOT_IN_RANGE) 
+                    {
+                        //console.log(Game.getObjectById(creep.memory.sourceToHarvest.id).pos);
+                        creep.travelTo(Game.getObjectById(creep.memory.sourceToHarvest.id).pos,{offRoad: true});
+                    } 
+                }
         } 
             
     }
