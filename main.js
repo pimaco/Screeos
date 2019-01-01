@@ -151,11 +151,11 @@ module.exports.loop = function () {
     numberOfHauler = [1,1,1,1,1,1,1,1,1,1,1,1,1];
     //numberOfHauler = [2,0,4,3,3,2,2,2,3,2];
 
-    arrayFlag = [Game.flags.remote0, Game.flags.remote1, Game.flags.remote2, Game.flags.remote3, Game.flags.remote4, Game.flags.remote5, Game.flags.remote6, Game.flags.remote7, Game.flags.remote8, Game.flags.remote9, Game.flags.remote10, Game.flags.remote11, Game.flags.remote12];
-    destRoom = [Game.rooms['W62N27'], Game.rooms['W61N28'], Game.rooms['W63N28'], Game.rooms['W62N27'], Game.rooms['W63N29'], Game.rooms['W65N28'], Game.rooms['W63N26'], Game.rooms['W66N31'], Game.rooms['W59N31'],Game.rooms['W59N29'], Game.rooms['W62N27'], Game.rooms['W67N29'], Game.rooms['W67N27']];
-    arrayControllerFlag = [Game.flags.remoteController0, Game.flags.remoteController1, Game.flags.remoteController2, Game.flags.remoteController3, Game.flags.remoteController4, Game.flags.remoteController5, Game.flags.remoteController6, Game.flags.remoteController7, Game.flags.remoteController8, Game.flags.remoteController9, Game.flags.remoteController10,Game.flags.remoteController11,Game.flags.remoteController12];
+    arrayFlag = [Game.flags.remote0, Game.flags.remote1, Game.flags.remote2, Game.flags.remote3, Game.flags.remote4, Game.flags.remote5, Game.flags.remote6, Game.flags.remote7, Game.flags.remote8, Game.flags.remote9, Game.flags.remote10, Game.flags.remote11, Game.flags.remote12, Game.flags.remote13];
+    destRoom = [Game.rooms['W62N27'], Game.rooms['W61N28'], Game.rooms['W63N28'], Game.rooms['W62N27'], Game.rooms['W63N29'], Game.rooms['W65N28'], Game.rooms['W63N26'], Game.rooms['W66N31'], Game.rooms['W59N31'],Game.rooms['W59N29'], Game.rooms['W62N27'], Game.rooms['W67N29'], Game.rooms['W67N27'], Game.rooms['W67N29']];
+    arrayControllerFlag = [Game.flags.remoteController0, Game.flags.remoteController1, Game.flags.remoteController2, Game.flags.remoteController3, Game.flags.remoteController4, Game.flags.remoteController5, Game.flags.remoteController6, Game.flags.remoteController7, Game.flags.remoteController8, Game.flags.remoteController9, Game.flags.remoteController10, Game.flags.remoteController11, Game.flags.remoteController12, Game.flags.remoteController13];
     
-    for (var k = 0, len = 13; k < len; k++)
+    for (var k = 0, len = 14; k < len; k++)
     {
         energyHaulers[k] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'energyHauler' && creep.memory.currentFlag && creep.memory.currentFlag.name == ('remote'+k) ;});
         remoteHarvesters[k] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'remoteHarvester' && creep.memory.currentFlag && creep.memory.currentFlag.name == ('remote'+k) ;});    
@@ -695,7 +695,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
                 else if(claimers[0].length < 1  || claimers[1].length < 1 || claimers[2].length < 1 || claimers[3].length < 1 || claimers[4].length < 1  || claimers[5].length < 1 || claimers[6].length < 1 || claimers[7].length < 1 || claimers[8].length < 1 || claimers[9].length < 1 || (claimers[10].length < 1 && index > 1) || (claimers[11].length < 1 && index > 9) || (claimers[12].length < 1 && index > 9))                
                 {
                     var clmSpwDist = null;
-                    for(var clm = 0, clmlen = 13; clm < clmlen; clm++)
+                    for(var clm = 0, clmlen = 14; clm < clmlen; clm++)
                     {
                         clmSpwDist = Game.map.getRoomLinearDistance(activeSpawns[s].pos.roomName, arrayControllerFlag[clm].pos.roomName);
                         if(((!claimers[clm] || claimers[clm].length < 1 ) || (claimers[clm][0].ticksToLive < 100 && claimers[clm].length < 2)) && arrayControllerFlag[clm] && clmSpwDist < 3)
@@ -966,7 +966,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
             if(claimers[0].length > 0  && claimers[1].length > 0 && claimers[2].length > 0 && claimers[3].length > 0 && claimers[4].length > 0  && claimers[5].length > 0 && claimers[6].length > 0 && claimers[7].length > 0 && claimers[8].length > 0 && claimers[9].length > 0 && claimers[11].length > 0 && claimers[12].length > 0)
             {
             var roomDist = null;
-                for (var r = 0, len = 13; r < len; r++)
+                for (var r = 0, len = 14; r < len; r++)
                 {
                     //RemoteHarvesters & Haulers not required for now for that position
                     if(r == 120)
