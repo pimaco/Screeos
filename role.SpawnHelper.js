@@ -9,7 +9,7 @@ var roleSpawnHelper = {
         }
         else
         {
-            creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
+            creep.room.find(FIND_DROPPED_RESOURCES,{filter: function(object){ return object.resourceType == RESOURCE_ENERGY}}).forEach(function(res) {
                 //var creep = res.findClosestCarrier();
                 creep.pickup(res);
             });
@@ -59,6 +59,13 @@ var roleSpawnHelper = {
                         creep.moveTo(SpawnInRoom[1]);
                     }
                 }
+                else if(SpawnInRoom.length > 2 && SpawnInRoom[2].energy < SpawnInRoom[2].energyCapacity ) 
+                {
+                    if(creep.transfer(SpawnInRoom[2], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) 
+                    {
+                        creep.moveTo(SpawnInRoom[2]);
+                    }
+                }
                 else if(SR)
                 {
                     creep.moveTo(SR);
@@ -66,58 +73,12 @@ var roleSpawnHelper = {
                 }
                 else if(towers.length > 0)
                 {
-                    if(towers.length == 1)
-                    {
-                        if(towers[0].energy < towers[0].energyCapacity)
+                    for (var k = 0, len = towers.length; k < len; k++)
+                    {        
+                        if(towers[k].energy < towers[k].energyCapacity)
                         {
-                            creep.moveTo(towers[0]);
-                            creep.transfer(towers[0], RESOURCE_ENERGY);
-                        }
-                    }
-                    else if(towers.length == 2)
-                    {
-                        if(towers[0].energy < towers[0].energyCapacity)
-                        {
-                            creep.moveTo(towers[0]);
-                            creep.transfer(towers[0], RESOURCE_ENERGY);
-                        }
-                        else if(towers[1].energy < towers[1].energyCapacity)
-                        {
-                            creep.moveTo(towers[1]);
-                            creep.transfer(towers[1], RESOURCE_ENERGY);
-                        }
-                    }
-                    else if(towers.length == 3)
-                    {
-                        if((towers[0].energy < towers[0].energyCapacity) || (towers[1].energy < towers[1].energyCapacity) || (towers[2].energy < towers[2].energyCapacity))
-                        {
-                            
-                            if(towers[0].energy < towers[0].energyCapacity)
-                            {
-                                creep.moveTo(towers[0]);
-                                creep.transfer(towers[0], RESOURCE_ENERGY);
-                            }
-                            else if(towers[1].energy < towers[1].energyCapacity)
-                            {
-                                creep.moveTo(towers[1]);
-                                creep.transfer(towers[1], RESOURCE_ENERGY);
-                            }
-                            else if(towers[2].energy < towers[2].energyCapacity)
-                            {
-                                creep.moveTo(towers[2]);
-                                creep.transfer(towers[2], RESOURCE_ENERGY);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (var k = 0, len = towers.length; k < len; k++)
-                        {        
-                            if(towers[k].energy < towers[k].energyCapacity)
-                            {
-                                creep.moveTo(towers[k]);
-                                creep.transfer(towers[k], RESOURCE_ENERGY);
-                            }
+                            creep.moveTo(towers[k]);
+                            creep.transfer(towers[k], RESOURCE_ENERGY);
                         }
                     }
                 }

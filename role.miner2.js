@@ -21,17 +21,37 @@ var roleMiner2 = {
         
             if(creep.carry.energy < creep.carryCapacity) 
             {
-                creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
-                //var creep = res.findClosestCarrier();
-                creep.pickup(res);
+                var containersClose = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+                    filter: function(object)
+                    {
+                        return object.structureType === STRUCTURE_CONTAINER;
+                    } 
+                    
                 });
-                
-                var sources = creep.room.find(FIND_SOURCES);
-                if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) 
+
+                if(containersClose.store[RESOURCE_ENERGY] > 0)
                 {
-                    creep.travelTo(sources[0]);
+                    if (creep.withdraw(containersClose, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+                    {
+                        creep.moveTo(containersClose);   
+                    }
+                    creep.withdraw(containersClose, RESOURCE_ENERGY);
                 }
-               // console.log(creep.harvest(sources[0]));
+                else
+                {
+                    creep.room.find(FIND_DROPPED_RESOURCES,{filter: function(object){ return object.resourceType == RESOURCE_ENERGY}}).forEach(function(res) {
+                    //var creep = res.findClosestCarrier();
+                    creep.pickup(res);
+                    });
+                    
+                    var sources = creep.room.find(FIND_SOURCES);
+                    if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) 
+                    {
+                        creep.travelTo(sources[0]);
+                    }
+                // console.log(creep.harvest(sources[0]));
+                }
+            
             }
             else if(SR.length > 0)
             {

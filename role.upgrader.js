@@ -10,7 +10,7 @@
         }
         else
         {
-            creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
+            creep.room.find(FIND_DROPPED_RESOURCES,{filter: function(object){ return object.resourceType == RESOURCE_ENERGY}}).forEach(function(res) {
                 //var creep = res.findClosestCarrier();
                 creep.pickup(res);
             });

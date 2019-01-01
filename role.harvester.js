@@ -40,7 +40,7 @@ var roleHarvester = {
             //            if(((creep.carry.energy < creep.carryCapacity) && (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE)) || (creep.carry.energy == 0 && !creep.memory.Harvest )  ) 
             if((creep.carry.energy < creep.carryCapacity && creep.memory.harvest) || (creep.carry.energy == 0 && !creep.memory.Harvest )  ) 
             {   
-                creep.room.find(FIND_DROPPED_RESOURCES).forEach(function(res) {
+                creep.room.find(FIND_DROPPED_RESOURCES,{filter: function(object){ return object.resourceType == RESOURCE_ENERGY}}).forEach(function(res) {
                     //var creep = res.findClosestCarrier();
                     creep.pickup(res);
                     });
