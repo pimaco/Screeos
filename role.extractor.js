@@ -19,10 +19,13 @@ var roleExtractor = {
                 creep.travelTo(mine);
             }
         }
-        else if(creep.transfer(creep.room.terminal, _.findKey(creep.carry)) == ERR_NOT_IN_RANGE) 
+        else if(_.sum(creep.room.terminal.store) < 295000)
         {
-            creep.travelTo(creep.room.terminal);  
-            creep.transfer(creep.room.terminal, _.findKey(creep.carry));
+            if(creep.transfer(creep.room.terminal, _.findKey(creep.carry)) == ERR_NOT_IN_RANGE) 
+            {
+                creep.travelTo(creep.room.terminal);  
+                creep.transfer(creep.room.terminal, _.findKey(creep.carry));
+            }
         }
     }	
 };

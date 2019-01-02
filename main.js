@@ -692,13 +692,13 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
                         energyMovers[index] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'energyMover' && creep.memory.home.name == activeRoom.name;});
                     }	
                 }
-                else if(claimers[0].length < 1  || claimers[1].length < 1 || claimers[2].length < 1 || claimers[3].length < 1 || claimers[4].length < 1  || claimers[5].length < 1 || claimers[6].length < 1 || claimers[7].length < 1 || claimers[8].length < 1 || claimers[9].length < 1 || (claimers[10].length < 1 && index > 1) || (claimers[11].length < 1 && index > 9) || (claimers[12].length < 1 && index > 9))                
+                else if(claimers[0].length < 1  || claimers[1].length < 1 || claimers[2].length < 1 || claimers[3].length < 1 || claimers[4].length < 1  || claimers[5].length < 1 || claimers[6].length < 1 || claimers[7].length < 1 || claimers[8].length < 1 || claimers[9].length < 1 || claimers[10].length < 1  || claimers[11].length < 1 || claimers[12].length < 1 || claimers[13].length < 1)                
                 {
                     var clmSpwDist = null;
                     for(var clm = 0, clmlen = 14; clm < clmlen; clm++)
                     {
                         clmSpwDist = Game.map.getRoomLinearDistance(activeSpawns[s].pos.roomName, arrayControllerFlag[clm].pos.roomName);
-                        if(((!claimers[clm] || claimers[clm].length < 1 ) || (claimers[clm][0].ticksToLive < 100 && claimers[clm].length < 2)) && arrayControllerFlag[clm] && clmSpwDist < 3)
+                        if(((!claimers[clm] || claimers[clm].length < 1 ) || (claimers[clm][0].ticksToLive < 100 && claimers[clm].length < 2)) && arrayControllerFlag[clm] && clmSpwDist < 2)
                         {
                             if(activeSpawns[s].spawnCreep([CLAIM,CLAIM,MOVE,MOVE],'testSpawn', { dryRun: true}) == OK)
                             {
@@ -827,7 +827,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
                         defensers[index] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'defense' && creep.memory.home.name == activeRoom.name;});
                     }
                 }
-                else if(extractors[index].length < 1 && ExtractorInRoom && ExtractorInRoom.length > 0 && activeRoom.find(FIND_MINERALS)[0].mineralAmount > 0)
+                else if(extractors[index].length < 1 && ExtractorInRoom && ExtractorInRoom.length > 0 && activeRoom.find(FIND_MINERALS)[0].mineralAmount > 0 && activeRoom.terminal && ((_.sum(activeRoom.terminal.store) - activeRoom.terminal.store[RESOURCE_ENERGY]) < 150000) && _.sum(activeRoom.terminal.store) < 275000)
                 {
                     if(activeSpawns[s].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY],'testSpawn', { dryRun: true}) == OK)
                     {
