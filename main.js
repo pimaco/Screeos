@@ -994,10 +994,16 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
        
         for(var z = 0, len = neededRsc.length; z < len; z++)
         {
-            if(!terminal.cooldown && terminal.store[neededRsc[z]] && terminal.store[neededRsc[z]] > 100 && (Game.rooms[ScienceEnabled].terminal.store[neededRsc[z]] < 3000 || !Game.rooms[ScienceEnabled].terminal.store[neededRsc[z]]))
+            if(!terminal.cooldown && terminal.store[RESOURCE_ENERGY] && terminal.store[RESOURCE_ENERGY] >= 800 && terminal.store[neededRsc[z]] && terminal.store[neededRsc[z]] >= 800 && (Game.rooms[ScienceEnabled].terminal.store[neededRsc[z]] < 3000 || !Game.rooms[ScienceEnabled].terminal.store[neededRsc[z]]))
             {
                 console.log("Transfering " + neededRsc[z] +" from " + activeRoom.name + " to room " + Game.rooms[ScienceEnabled] );
-                terminal.send(neededRsc[z], 100, Game.rooms[ScienceEnabled].name, 'Transfer resources for Lab');
+                terminal.send(neededRsc[z], terminal.store[neededRsc[z]], Game.rooms[ScienceEnabled].name, 'Transfer resources for Lab');
+            }
+            else if(Game.market.credits > 900000 && !Game.rooms[ScienceEnabled].terminal.cooldown && !Game.rooms[ScienceEnabled].terminal.store[neededRsc[z]] || Game.rooms[ScienceEnabled].terminal.store[neededRsc[z]] < 800 && Game.rooms[ScienceEnabled].terminal.store[RESOURCE_ENERGY] > 500)
+            {
+                var orders = Game.market.getAllOrders(order => order.resourceType == neededRsc[z] && order.type == ORDER_SELL && order.price < 0.15 && Game.market.calcTransactionCost(800, 'W62N27', order.roomName) < Game.rooms[ScienceEnabled].terminal.store[RESOURCE_ENERGY]);
+                console.log("Buying resource " + neededRsc[z] + " from order " + orders[0].id + " at price " + orders[0].price);
+                Game.market.deal(orders[0].id,800,Game.rooms[ScienceEnabled].name);
             }
         }
     }
