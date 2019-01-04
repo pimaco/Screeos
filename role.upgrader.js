@@ -24,6 +24,23 @@
                 var totalS = 0;
             }   
             
+            if(creep.pos.roomName == ScienceEnabled)
+            {
+                var lab = scienceLabs[9];
+            }
+            else
+            {
+                var lab = creep.room.find(FIND_STRUCTURES, {
+                    filter: function(object)
+                    {
+                        return object.structureType === STRUCTURE_LAB;
+                    } });
+                if(lab.length > 0)
+                {
+                    lab = lab[0];  
+                }
+            }
+            
             if(((creep.carry.energy < creep.carryCapacity) && (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE)) || creep.carry.energy == 0  ) 
             {
                 var sources = creep.room.find(FIND_SOURCES);
@@ -35,8 +52,7 @@
                     } });
                 // console.log(containers);
                 if(containers.length > 0 && totalS < 200)
-                {
-                    
+                {   
                     for (var i = 0, len = containers.length; i < len; i++)
                     {        
                         var total = _.sum(containers[i].store);
@@ -63,7 +79,6 @@
                                 creep.moveTo(sources[0]);
                             }
                         }    
-
                     }
                 }
                 else
@@ -87,6 +102,34 @@
                         }
                     }
                 }    
+            }
+            else if(lab && lab != "")
+            {
+                var workBody = _.filter(creep.body, function(bp){return bp.type == WORK;});
+
+                if(workBody != '' && !workBody[0].boost && lab && lab != "" && lab.mineralType == RESOURCE_GHODIUM_HYDRIDE && (lab.mineralAmount >= (workBody.length * 30 )) && (lab.energy >= (workBody.length * 20)))
+                {
+                    creep.travelTo(lab);
+
+                    var screepsAtLab = lab.pos.findInRange(FIND_CREEPS, 1, {
+                        filter: function(object)
+                        {
+                            return object.memory.role === 'upgrader';
+                        } 
+                    });
+                    if(screepsAtLab && screepsAtLab.length > 0)
+                    {
+                        lab.boostCreep(screepsAtLab[0]);
+                    }  
+                }
+                else
+                {
+                    if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) 
+                    {
+                        creep.moveTo(creep.room.controller);
+                    }
+                    creep.moveTo(creep.room.controller);
+                }
             }
             else
             {

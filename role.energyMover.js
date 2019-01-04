@@ -17,6 +17,7 @@ var roleEnergyMover = {
                 {
                     return object.structureType === STRUCTURE_CONTAINER;
                 } });
+            creep.memory.varresource = null;                
             if(creep.room.storage)
             {
                 var links = creep.room.storage.pos.findClosestByRange(FIND_STRUCTURES,{filter: function(object) 
@@ -32,11 +33,11 @@ var roleEnergyMover = {
                     return object.structureType === STRUCTURE_LINK
                  }});
             }
+            if(creep.pos.roomName == ScienceEnabled && scienceLabs[9].mineralType == RESOURCE_GHODIUM_HYDRIDE && scienceLabs[9].mineralAmount >= 1500)
+            {
+                creep.memory.varresource = RESOURCE_GHODIUM_HYDRIDE;
+            }
             
-            var labs =   creep.room.find(FIND_STRUCTURES,{filter: function(object) 
-                {
-                    return object.structureType === STRUCTURE_LAB
-                 }});  
             if(creep.memory.varresource == null || creep.memory.varresource == undefined)
             {
                 creep.memory.varresource = RESOURCE_ENERGY;
@@ -125,83 +126,54 @@ var roleEnergyMover = {
                     }                 
                 }
 
-                if(creep.room.storage && totalS > 30000 && creep.room.terminal && totalEnerTerm < 50000 && creep.room.controller.level ==  8)
+                var lab = creep.room.find(FIND_STRUCTURES, {
+                    filter: function(object)
+                    {
+                        return object.structureType === STRUCTURE_LAB;
+                    } });
+                if(lab.length > 0)
+                {
+                    lab = lab[0];  
+                }
+
+                if(creep.memory.varresource == RESOURCE_GHODIUM_HYDRIDE && creep.pos.roomName == ScienceEnabled)
+                {
+                    creep.memory.containerSource = scienceLabs[9];
+                    creep.memory.containerTarget = creep.room.terminal;
+                }
+                else if(creep.pos.roomName != ScienceEnabled && creep.room.storage && lab != scienceLabs[9] && lab && lab != '' && (lab.mineralCapacity - lab.mineralAmount) >= creep.carryCapacity && creep.room.terminal && creep.room.terminal.store[RESOURCE_GHODIUM_HYDRIDE] >= creep.carryCapacity && creep.room.controller.level ==  8)
+                {
+                    
+                    creep.memory.varresource = RESOURCE_GHODIUM_HYDRIDE;
+                    creep.memory.containerSource = creep.room.terminal;
+                    creep.memory.containerTarget = lab;
+                }
+                else if(creep.pos.roomName != ScienceEnabled && creep.room.storage && lab != scienceLabs[9] && lab && lab != '' && (lab.energyCapacity - lab.energy) >= creep.carryCapacity && creep.room.storage && creep.room.storage.store[RESOURCE_ENERGY] >= creep.carryCapacity && creep.room.controller.level ==  8)
+                {
+                    
+                    creep.memory.varresource = RESOURCE_ENERGY;
+                    creep.memory.containerSource = creep.room.storage;
+                    creep.memory.containerTarget = lab;
+                }
+                else if(creep.pos.roomName != ScienceEnabled && creep.room.storage && totalS > 30000 && creep.room.terminal && totalEnerTerm < 50000 && creep.room.controller.level ==  8)
                 {
                     creep.memory.containerSource = creep.room.storage;
                     creep.memory.containerTarget = creep.room.terminal;
                 }
-                else if(creep.room.storage && creep.room.terminal && totalEnerTerm > 1000 && creep.room.controller.level < 8)
+                else if(creep.room.storage && creep.room.terminal && totalEnerTerm > 2000 && creep.room.controller.level < 8)
                 {
                     creep.memory.containerSource = creep.room.terminal;
                     creep.memory.containerTarget = creep.room.storage;
                 }
-                else if(creep.room.storage)
+                else if(creep.room.storage && totalS > creep.carryCapacity && creep.room.terminal && totalEnerTerm < 1000)
                 {  
-                    if(labs && labs.length > 0 && creep.room.terminal)
-                    {
-                        
-                        for (var i = 0, len = labs.length; i < len; i++)
-                        {        
-                            if(labs[i].energy < 2000)
-                            {
-                                //console.log(creep.name + "  "+ labs[i]);
-                                creep.memory.containerSource = creep.room.storage;
-                                creep.memory.containerTarget = labs[i];
-                                break;
-                            }
-                        }
-
-                        if(creep.carry.energy > 0 && (creep.memory.containerTarget == null || creep.memory.containerTarget == creep.room.storage))
-                        {
-                             creep.memory.containerTarget = creep.room.storage;
-                        }
-                        else if (!creep.carry.energy || creep.carry.energy == 0)
-                        {
-                            if(labs[0] && (labs[0].mineralType == RESOURCE_UTRIUM || labs[0].mineralType == undefined) && labs[0].mineralAmount < (labs[0].mineralCapacity - creep.carryCapacity) && creep.room.terminal.store[RESOURCE_UTRIUM] > 0)
-                            {
-                                creep.memory.varresource = RESOURCE_UTRIUM;
-                                creep.memory.containerSource = creep.room.terminal;
-                                creep.memory.containerTarget = labs[0];
-                            }
-                            else if(labs[2] && (labs[2].mineralType == RESOURCE_HYDROGEN || labs[2].mineralType == undefined) && labs[2].mineralAmount < (labs[2].mineralCapacity - creep.carryCapacity)&& creep.room.terminal.store[RESOURCE_HYDROGEN] > 0)
-                            {
-                                creep.memory.varresource = RESOURCE_HYDROGEN;
-                                creep.memory.containerSource = creep.room.terminal;
-                                creep.memory.containerTarget = labs[2];
-                            }
-                            else if(labs.length < 6 && labs[1] && (labs[1].mineralType == RESOURCE_UTRIUM_HYDRIDE) && labs[1].mineralAmount >= creep.carryCapacity)
-                            {
-                                creep.memory.varresource = RESOURCE_UTRIUM_HYDRIDE;
-                                creep.memory.containerSource = labs[1];
-                                creep.memory.containerTarget = creep.room.terminal;
-                            }
-                            else if(labs[3] && (labs[3].mineralType == RESOURCE_OXYGEN || labs[3].mineralType == undefined) && labs[3].mineralAmount < (labs[3].mineralCapacity - creep.carryCapacity)&& creep.room.terminal.store[RESOURCE_OXYGEN] > 0)
-                            {
-                                creep.memory.varresource = RESOURCE_OXYGEN;
-                                creep.memory.containerSource = creep.room.terminal;
-                                creep.memory.containerTarget = labs[3];
-                            }
-                            else if(labs.length == 6 && labs[4] && (labs[4].mineralType == RESOURCE_UTRIUM_ACID) && labs[4].mineralAmount >= creep.carryCapacity)
-                            {
-                                creep.memory.varresource = RESOURCE_UTRIUM_ACID;
-                                creep.memory.containerSource = labs[4];
-                                creep.memory.containerTarget = creep.room.terminal;
-                            }                            
-                            else
-                            {
-                                creep.memory.varresource = RESOURCE_ENERGY;
-                            }
-                        }    
-                            
-                    }
+                    creep.memory.containerSource = creep.room.storage;
+                    creep.memory.containerTarget = creep.room.terminal;
                     if(!creep.memory.containerTarget)
                     {              
                         creep.memory.containerTarget = creep.room.storage;
                     }
                 }
-
-                
-
 
                 if( _.sum(creep.carry) < creep.carryCapacity && creep.memory.containerSource )
                 {

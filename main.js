@@ -16,6 +16,7 @@ var roleEnergyMover = require('role.energyMover');
 var roleRemoteHarvester = require('role.remoteHarvester');
 var roleEnergyHauler = require('role.energyHauler');
 var roleClaimer = require('role.claimer');
+var roleScientist = require('role.scientist');
 
 //var pathCalculator = require('pathCalculator');
 var Traveler = require('Traveler');
@@ -26,7 +27,51 @@ profiler.enable();
 
 module.exports.loop = function () {
     var Inventory = require('inventoryBuilder');
-    
+    //Gather some stats
+    if (Memory.stats == undefined) {
+        Memory.stats = {}
+      }
+      
+      var rooms = Game.rooms
+      
+      var spawns = Game.spawns
+      for (let roomKey in rooms) {
+        let room = Game.rooms[roomKey]
+        var isMyRoom = (room.controller ? room.controller.my : 0)
+        if (isMyRoom) {
+          Memory.stats['room.' + room.name + '.myRoom'] = 1
+          Memory.stats['room.' + room.name + '.energyAvailable'] = room.energyAvailable
+          Memory.stats['room.' + room.name + '.energyCapacityAvailable'] = room.energyCapacityAvailable
+          Memory.stats['room.' + room.name + '.controllerProgress'] = room.controller.progress
+          Memory.stats['room.' + room.name + '.controllerProgressTotal'] = room.controller.progressTotal
+          var stored = 0
+          var storedTotal = 0
+      
+          if (room.storage) {
+            stored = room.storage.store[RESOURCE_ENERGY]
+            storedTotal = room.storage.storeCapacity[RESOURCE_ENERGY]
+          } else {
+            stored = 0
+            storedTotal = 0
+          }
+      
+          Memory.stats['room.' + room.name + '.storedEnergy'] = stored
+        }else {
+          Memory.stats['room.' + room.name + '.myRoom'] = undefined
+        }
+      }
+      Memory.stats['gcl.progress'] = Game.gcl.progress
+      Memory.stats['gcl.progressTotal'] = Game.gcl.progressTotal
+      Memory.stats['gcl.level'] = Game.gcl.level
+      for (let spawnKey in spawns) {
+        let spawn = Game.spawns[spawnKey]
+        Memory.stats['spawn.' + spawn.name + '.defenderIndex'] = spawn.memory['defenderIndex']
+      }
+      
+      Memory.stats['cpu.bucket'] = Game.cpu.bucket
+      Memory.stats['cpu.limit'] = Game.cpu.limit
+      //Memory.stats['cpu.stats'] = Game.cpu.getUsed() - lastTick
+      Memory.stats['cpu.getUsed'] = Game.cpu.getUsed()
     //var controlledRooms = Object.values(Game.rooms).filter(room => room.controller.my);
     global.controlledRooms =[];
     for(var name in Game.rooms) {
@@ -35,7 +80,7 @@ module.exports.loop = function () {
         }
     }
     //console.log(controlledRooms.length);
-	if(Game.time % 2 || !Memory.myRooms || !Memory.myRooms.length < controlledRooms.length)
+	if(Game.time % 100 || !Memory.myRooms || !Memory.myRooms.length < controlledRooms.length)
     {
         var rname = "";
         var dist = null;
@@ -70,10 +115,10 @@ module.exports.loop = function () {
     }	
     profiler.wrap(function() {
 	
-//	if(!(Game.rooms['W62N27'].controller.safeMode) && !(Game.rooms['W62N27'].controller.safeModeCooldown))
-//	{
-//		Game.rooms['W62N27'].controller.activateSafeMode();
-//	}
+    //	if(!(Game.rooms['W62N27'].controller.safeMode) && !(Game.rooms['W62N27'].controller.safeModeCooldown))
+    //	{
+    //		Game.rooms['W62N27'].controller.activateSafeMode();
+    //	}
 	for(var name in Memory.creeps)
 	{
 		if(!Game.creeps[name])
@@ -81,7 +126,7 @@ module.exports.loop = function () {
 			delete Memory.creeps[name];
 		}
 	}
-  
+    global.ScienceEnabled = "W62N27";
     global.attackers = []; 
     global.harvesters = []; 
 	global.defensers = [];  
@@ -95,6 +140,7 @@ module.exports.loop = function () {
 	global.upcrossers = []; 
 	global.extractors = []; 
     global.energyMovers = []; 
+    global.scientists = []; 
     
     global.nbRoadInRoom = [];
     global.nbContainersInRoom = [];
@@ -116,6 +162,7 @@ module.exports.loop = function () {
         upcrossers[j] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'upcrosser' && creep.memory.home.name == controlledRooms[j].name;});
         extractors[j] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'extractor' && creep.memory.home.name == controlledRooms[j].name;});
         energyMovers[j] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'energyMover' && creep.memory.home.name == controlledRooms[j].name;});
+        scientists[j] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'scientist' && creep.memory.home.name == controlledRooms[j].name;});
         
         nbContainersInRoom[j] = controlledRooms[j].find(FIND_STRUCTURES, {
             filter: function(object)
@@ -148,14 +195,13 @@ module.exports.loop = function () {
     global.arrayFlag = [];
     global.destRoom = [];
 
-    numberOfHauler = [1,1,1,1,1,1,1,1,1,1,1,1,1];
-    //numberOfHauler = [2,0,4,3,3,2,2,2,3,2];
+    numberOfHauler = [1,1,1,1,1,1,1,1,1,1,1,1,1,1];
 
     arrayFlag = [Game.flags.remote0, Game.flags.remote1, Game.flags.remote2, Game.flags.remote3, Game.flags.remote4, Game.flags.remote5, Game.flags.remote6, Game.flags.remote7, Game.flags.remote8, Game.flags.remote9, Game.flags.remote10, Game.flags.remote11, Game.flags.remote12, Game.flags.remote13];
     destRoom = [Game.rooms['W62N27'], Game.rooms['W61N28'], Game.rooms['W63N28'], Game.rooms['W62N27'], Game.rooms['W63N29'], Game.rooms['W65N28'], Game.rooms['W63N26'], Game.rooms['W66N31'], Game.rooms['W59N31'],Game.rooms['W59N29'], Game.rooms['W62N27'], Game.rooms['W67N29'], Game.rooms['W67N27'], Game.rooms['W67N29']];
     arrayControllerFlag = [Game.flags.remoteController0, Game.flags.remoteController1, Game.flags.remoteController2, Game.flags.remoteController3, Game.flags.remoteController4, Game.flags.remoteController5, Game.flags.remoteController6, Game.flags.remoteController7, Game.flags.remoteController8, Game.flags.remoteController9, Game.flags.remoteController10, Game.flags.remoteController11, Game.flags.remoteController12, Game.flags.remoteController13];
     
-    for (var k = 0, len = 14; k < len; k++)
+    for (var k = 0, len = numberOfHauler.length; k < len; k++)
     {
         energyHaulers[k] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'energyHauler' && creep.memory.currentFlag && creep.memory.currentFlag.name == ('remote'+k) ;});
         remoteHarvesters[k] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'remoteHarvester' && creep.memory.currentFlag && creep.memory.currentFlag.name == ('remote'+k) ;});    
@@ -221,7 +267,7 @@ module.exports.loop = function () {
 
     attackers = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'attacker';});
     global.tempsers =  _.filter(Game.creeps, function(creep) { return creep.memory.role == 'temp';});
-    
+    ScienceReation('W62N27');
     
     for (var k = 0, len = controlledRooms.length; k < len; k++)
     {
@@ -231,162 +277,7 @@ module.exports.loop = function () {
     }
         //This part handle transfer between links
     var roomList = [Game.rooms['W59N29'], Game.rooms['W59N31'], Game.rooms['W61N28'], Game.rooms['W62N27'], Game.rooms['W63N26'], Game.rooms['W63N28'], Game.rooms['W63N29'], Game.rooms['W65N28'], Game.rooms['W66N31'], Game.rooms['W61N29'], Game.rooms['W67N27'], Game.rooms['W67N29']];    
-    
-    var linkFrom0 = roomList[0].lookForAt('structure', 19, 47)[0];
-    var link2From0 = roomList[0].lookForAt('structure', 31, 4)[0];
-    var linkTo0 = roomList[0].lookForAt('structure', 33, 8)[0]; 
-    var linkFrom1 = roomList[1].lookForAt('structure', 23, 13)[0];
-    var link2From1 = roomList[1].lookForAt('structure', 4, 10)[0];
-    var linkTo1 = roomList[1].lookForAt('structure', 40, 30)[0];
-    var linkFrom2 = roomList[2].lookForAt('structure', 12, 37)[0];
-    var link2From2 = roomList[2].lookForAt('structure', 9, 26)[0];
-    var linkTo2 = roomList[2].lookForAt('structure', 18, 29)[0];
-    var linkFrom3 = roomList[3].lookForAt('structure', 34, 33)[0];
-	var link2From3 = roomList[3].lookForAt('structure', 30, 13)[0];
-    var linkTo3 = roomList[3].lookForAt('structure', 18, 12)[0]; 
-    var linkFrom4 =  roomList[4].lookForAt('structure', 42, 40)[0];
-    var link2From4 =  roomList[4].lookForAt('structure', 14, 39)[0];
-    var linkTo4 =  roomList[4].lookForAt('structure', 30, 11)[0];
-    var linkFrom5 = roomList[5].lookForAt('structure', 38, 8)[0];
-    var link2From5 = roomList[5].lookForAt('structure', 27, 18)[0];
-    var linkTo5 = roomList[5].lookForAt('structure', 31, 22)[0];
-    var linkFrom6 = roomList[6].lookForAt('structure', 45, 3)[0];
-    var link2From6 = roomList[6].lookForAt('structure', 39, 28)[0];
-    var linkTo6 = roomList[6].lookForAt('structure', 20, 26)[0]; 
-    var linkFrom7 = roomList[7].lookForAt('structure', 34, 17)[0];
-    var link2From7 = roomList[7].lookForAt('structure', 9, 12)[0];
-    var linkTo7 = roomList[7].lookForAt('structure', 13, 39)[0];
-    var linkFrom8 = roomList[8].lookForAt('structure', 13, 37)[0];
-    var link2From8 = roomList[8].lookForAt('structure', 34, 27)[0];
-    var linkTo8 = roomList[8].lookForAt('structure', 21, 35)[0]; 
-    var linkFrom9 = roomList[9].lookForAt('structure', 47, 43)[0];
-    var link2From9 = roomList[9].lookForAt('structure', 28, 4)[0];
-    var linkTo9 = roomList[9].lookForAt('structure', 35, 28)[0]; 
-    var linkFrom10 = roomList[10].lookForAt('structure', 18, 14)[0];
-    var link2From10 = roomList[10].lookForAt('structure', 18, 47)[0];
-    var linkTo10 = roomList[10].lookForAt('structure', 24, 38)[0]; 
-    var linkFrom11 = roomList[11].lookForAt('structure', 5, 26)[0];
-    var link2From11 = roomList[11].lookForAt('structure', 35, 44)[0];
-    var linkTo11 = roomList[11].lookForAt('structure', 39, 39)[0]; 
-    
-    
-
-    
-    
-    if(linkFrom0 && linkTo0)
-    {
-        linkFrom0.transferEnergy(linkTo0);
-    }
-    if(link2From0 && linkTo0)
-    {
-        link2From0.transferEnergy(linkTo0);
-    }
-    if(linkFrom1 && linkTo1)
-    {
-        linkFrom1.transferEnergy(linkTo1);
-    }
-    if(link2From1 && linkTo1)
-    {
-        link2From1.transferEnergy(linkTo1);
-    }
-    if(linkFrom2 && linkTo2)
-    {
-        linkFrom2.transferEnergy(linkTo2);
-    }
-    if(link2From2 && linkTo2)
-    {
-        link2From2.transferEnergy(linkTo2);
-    }
-    if(linkFrom3 && linkTo3)
-    {
-        linkFrom3.transferEnergy(linkTo3);
-    }
-    if(link2From3 && linkTo3)
-    {
-        link2From3.transferEnergy(linkTo3);
-    }
-    if(linkFrom4 && linkTo4)
-    {
-        linkFrom4.transferEnergy(linkTo4);
-    }
-    if(link2From4 && linkTo4)
-    {
-        link2From4.transferEnergy(linkTo4);
-    }
-    if(linkFrom5 && linkTo5)
-    {
-        linkFrom5.transferEnergy(linkTo5);
-    }
-    if(link2From5 && linkTo5)
-    {
-        link2From5.transferEnergy(linkTo5);
-    }
-    if(linkFrom6 && linkTo6)
-    {
-        linkFrom6.transferEnergy(linkTo6);
-    }
-    if(link2From6 && linkTo6)
-    {
-        link2From6.transferEnergy(linkTo6);
-    }
-    if(linkFrom7 && linkTo7)
-    {
-        linkFrom7.transferEnergy(linkTo7);
-    }
-    if(link2From7 && linkTo7)
-    {
-        link2From7.transferEnergy(linkTo7);
-    }
-    if(linkFrom8 && linkTo8)
-    {
-        linkFrom8.transferEnergy(linkTo8);
-    }
-    if(link2From8 && linkTo8)
-    {
-        link2From8.transferEnergy(linkTo8);
-    }
-    if(linkFrom9 && linkTo9)
-    {
-        linkFrom9.transferEnergy(linkTo9);
-    }
-    if(link2From9 && linkTo9)
-    {
-        link2From9.transferEnergy(linkTo9);
-    }
-    if(linkFrom10 && linkTo10)
-    {
-        linkFrom10.transferEnergy(linkTo10);
-    }
-    if(link2From10 && linkTo10)
-    {
-        link2From10.transferEnergy(linkTo10);
-    }
-    if(linkFrom11 && linkTo11)
-    {
-        linkFrom11.transferEnergy(linkTo11);
-    }
-    if(link2From11 && linkTo11)
-    {
-        link2From11.transferEnergy(linkTo11);
-    }
-
-    //create reaction between Labs in Room 3
-    var labs = roomList[3].find(FIND_MY_STRUCTURES, 
-        {filter: {structureType: STRUCTURE_LAB}});
-    
-    if(labs && labs.length > 2 && labs[1].cooldown == 0 && labs[0].mineralAmount > 0 && labs[2].mineralAmount > 0 && labs[1].mineralAmount < labs[1].mineralCapacity)
-    {
-        labs[1].runReaction(labs[0], labs[2]);
-    }
-    if(labs && labs.length > 4 && labs[5].cooldown == 0 && labs[2].mineralAmount > 0 && labs[3].mineralAmount > 0 && labs[5].mineralAmount < labs[5].mineralCapacity)
-    {
-        labs[5].runReaction(labs[2], labs[3]);
-    }
-    if(labs && labs.length > 5 && labs[4].cooldown == 0 && labs[1].mineralAmount > 0 && labs[5].mineralAmount > 0 && labs[4].mineralAmount < labs[4].mineralCapacity)
-    {
-        labs[4].runReaction(labs[1], labs[5]);
-    }
-
+ 
     for(var name in Game.creeps)
     {
         
@@ -443,6 +334,10 @@ module.exports.loop = function () {
         else if(creep.memory.role == 'energyMover')
         {
             roleEnergyMover.run(creep);
+        }
+        else if(creep.memory.role == 'scientist')
+        {
+            roleScientist.run(creep);
         }
         else if(creep.memory.role == 'remoteHarvester')
         {
@@ -503,7 +398,6 @@ module.exports.loop = function () {
         Inventory.update();
     }
     });
-    
 }
 
 function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
@@ -526,15 +420,22 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
     if(activeRoom.storage)
     {
         var total = (activeRoom.storage.store[RESOURCE_ENERGY] );
+        var linksAtStorage = activeRoom.storage.pos.findInRange(FIND_STRUCTURES, 2, {
+            filter: function(object)
+            {
+                return object.structureType === STRUCTURE_LINK;
+            } 
+        });
     }
     else
     {
         var total = 0;
+        var linksAtStorage = [];
     }
     //console.log(activeRoom.name + "  " + total);
     var nbContainersAtSource = [];
     var nbContainerConstructSite = [];
-    var nbLinksAtSource = [];
+    var linksAtSource = [];
 
     for(var z = 0, leng = sources.length; z < leng; z++)
     {
@@ -544,14 +445,23 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
                 return object.structureType === STRUCTURE_CONTAINER;
             } 
         });
-
-        nbLinksAtSource[z] = sources[z].pos.findInRange(FIND_STRUCTURES, 2, {
+        
+        linksAtSource[z] = sources[z].pos.findInRange(FIND_STRUCTURES, 2, {
             filter: function(object)
             {
                 return object.structureType === STRUCTURE_LINK;
             } 
         });
-        if(nbContainersAtSource[z] == 0 && nbLinksAtSource[z] == 0)
+        
+        if(linksAtSource[z] && linksAtSource[z].length == 1 && linksAtStorage && linksAtStorage.length == 1)
+        {
+            if(linksAtSource[z][0].cooldown == 0 && linksAtSource[z][0].energy > 0 && linksAtStorage[0].energy < linksAtStorage[0].energyCapacity)
+            {
+                linksAtSource[z][0].transferEnergy(linksAtStorage[0]);
+            }
+        }
+        
+        if(nbContainersAtSource[z].length == 0 && linksAtSource[z].length == 0)
         {
             nbContainerConstructSite[z] = sources[z].pos.findInRange(FIND_CONSTRUCTION_SITES, 2, {
                 filter: function(object)
@@ -561,7 +471,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
             }); 
         }
 
-        if(activeRoom.controller.level > 4 && nbContainersAtSource < 1 && nbContainerConstructSite < 1)
+        if(activeRoom.controller.level > 4 && nbContainersAtSource[z].length < 1 && nbContainerConstructSite[z].length < 1)
         {
             terrain = Game.map.getRoomTerrain(activeRoom.name);
             //Let's build a new container at source
@@ -586,12 +496,16 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
         }
     
     }
+
+    
+
     var LinkActiveRoom =  activeRoom.find(FIND_STRUCTURES, {
         filter: function(object)
         {
             return object.structureType === STRUCTURE_LINK;
         } 
     });
+
     //console.log(activeRoom.name +'   ' + activeRoom.find(FIND_MINERALS)[0].mineralAmount);
     if(activeSpawns.length > 0)
     {
@@ -641,7 +555,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
                         spawnhelpers[index] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'spawnhelper' && creep.memory.home.name == activeRoom.name;});
                     }		
                 }
-                else if((miners2[index].length < 1 || (miners2[index].length < 2 && miners2[index][0].ticksToLive < 75 )) && (nbContainersAtSource[0].length > 0 || nbLinksAtSource[0].length > 0 || activeRoom.controller.level == 8))
+                else if((miners2[index].length < 1 || (miners2[index].length < 2 && miners2[index][0].ticksToLive < 75 )) && (nbContainersAtSource[0].length > 0 || linksAtSource[0].length > 0 || activeRoom.controller.level == 8))
                 {      
                     if(activeSpawns[s].spawnCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE,MOVE],'testSpawn', { dryRun: true}) == OK)
                     {	
@@ -650,7 +564,7 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
                         miners2[index] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'miner2' && creep.memory.home.name == activeRoom.name;});
                     }
                 }
-                else if((miners[index].length < 1 || (miners[index].length <2 && miners[index][0].ticksToLive < 75)) && sources.length > 1 && (nbContainersAtSource[1].length > 0 || nbLinksAtSource[1].length > 0 || activeRoom.controller.level == 8))
+                else if((miners[index].length < 1 || (miners[index].length <2 && miners[index][0].ticksToLive < 75)) && sources.length > 1 && (nbContainersAtSource[1].length > 0 || linksAtSource[1].length > 0 || activeRoom.controller.level == 8))
                 { 
                     if(activeSpawns[s].spawnCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE,MOVE],'testSpawn', { dryRun: true}) == OK)
                     {
@@ -690,6 +604,39 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
                         activeSpawns[s].spawnCreep([CARRY,CARRY,MOVE], 'EnerMover_' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'energyMover', home: activeRoom}});
                         console.log('Spawning new energyMover ' + activeRoom.name );
                         energyMovers[index] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'energyMover' && creep.memory.home.name == activeRoom.name;});
+                    }	
+                }
+                else if(scientists[index] && activeRoom.name == ScienceEnabled && (scientists[index].length < 1 || (scientists[index][0] && scientists[index][0].ticksToLive < 150 && scientists[index].length < 2)) && activeRoom.storage && activeRoom.terminal)
+                {
+                    if(activeSpawns[s].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY],'testSpawn', { dryRun: true}) == OK)
+                    {
+                        activeSpawns[s].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'Scientist' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'scientist', home: activeRoom}});
+                        console.log('Spawning new scientist ' + activeRoom.name );
+                        scientists[index] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'scientist' && creep.memory.home.name == activeRoom.name;});
+                    }
+                    else if(activeSpawns[s].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY],'testSpawn', { dryRun: true}) == OK)
+                    {
+                        activeSpawns[s].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'Scientist' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'scientist', home: activeRoom}});
+                        console.log('Spawning new scientist ' + activeRoom.name );
+                        scientists[index] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'scientist' && creep.memory.home.name == activeRoom.name;});
+                    }
+                    else if(activeSpawns[s].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY],'testSpawn', { dryRun: true}) == OK)
+                    {
+                        activeSpawns[s].spawnCreep([MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY], 'Scientist' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'scientist', home: activeRoom}});
+                        console.log('Spawning new scientist ' + activeRoom.name );
+                        scientists[index] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'scientist' && creep.memory.home.name == activeRoom.name;});
+                    }
+                    else if(activeSpawns[s].spawnCreep([MOVE,MOVE,CARRY,CARRY,CARRY,CARRY],'testSpawn', { dryRun: true}) == OK)
+                    {
+                        activeSpawns[s].spawnCreep([MOVE,MOVE,CARRY,CARRY,CARRY,CARRY], 'Scientist' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'scientist', home: activeRoom}});
+                        console.log('Spawning new scientist ' + activeRoom.name );
+                        scientists[index] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'scientist' && creep.memory.home.name == activeRoom.name;});
+                    }	
+                    else if(activeSpawns[s].spawnCreep([CARRY,CARRY,MOVE],'testSpawn', { dryRun: true}) == OK)
+                    {
+                        activeSpawns[s].spawnCreep([CARRY,CARRY,MOVE], 'Scientist' + activeRoom.name + '_' + (Math.floor(Math.random() * 100) + 1), { memory: {role: 'scientist', home: activeRoom}});
+                        console.log('Spawning new scientist ' + activeRoom.name );
+                        scientists[index] = _.filter(Game.creeps, function(creep) { return creep.memory.role == 'scientist' && creep.memory.home.name == activeRoom.name;});
                     }	
                 }
                 else if(claimers[0].length < 1  || claimers[1].length < 1 || claimers[2].length < 1 || claimers[3].length < 1 || claimers[4].length < 1  || claimers[5].length < 1 || claimers[6].length < 1 || claimers[7].length < 1 || claimers[8].length < 1 || claimers[9].length < 1 || claimers[10].length < 1  || claimers[11].length < 1 || claimers[12].length < 1 || claimers[13].length < 1)                
@@ -1016,7 +963,10 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
     
 
   var terminal = activeRoom.terminal;
- 
+    /*if(terminal)
+    {
+        console.log(terminal.pos.roomName + "  " + terminal + "    " + terminal.store[RESOURCE_ENERGY]);
+    }*/
     if(activeRoom.controller.level == 8 && terminal && !terminal.cooldown && (terminal.store[RESOURCE_ENERGY] > 20000)) 
     {
         for(var z = 0, leng = controlledRooms.length; z < leng; z++)
@@ -1028,16 +978,43 @@ function funcCreepSpawner(activeRoom, index,nbContainersInRoom,controlledRooms)
                 terminal.send(RESOURCE_ENERGY, 10000, controlledRooms[z].name,'Transfer from LVL8 room');  
                 break;
             }
-        }
-       
+        } 
     }
-    /*if(terminal && !terminal.cooldown && terminal.store.energy) 
-    {
-        var enerQuantity = terminal.store.energy / 2;
-        //Game.market.createOrder(ORDER_, RESOURCE_ENERGY, 0.006, 50000,  activeRoom.name);
-    }*/
 
-   // Game.market.createOrder(ORDER_SELL, RESOURCE_GHODIUM_HYDRIDE, 0.723, 2500,  'W62N27');
+    if(terminal && !terminal.cooldown && activeRoom.name == ScienceEnabled && terminal.store[RESOURCE_UTRIUM] > 3000)
+    {
+        var amount = terminal.store[RESOURCE_UTRIUM] - 3000;
+        terminal.send(RESOURCE_UTRIUM, amount, 'W67N27');
+    }
+
+    if(terminal && !terminal.cooldown && terminal.store && activeRoom.name != ScienceEnabled &&  ScienceEnabled != 'NotEnabled' && (_.sum(terminal.store) - terminal.store[RESOURCE_ENERGY]) >= 100 &&  terminal.store[RESOURCE_ENERGY] > 100)
+    {
+        
+        var neededRsc = [RESOURCE_ZYNTHIUM, RESOURCE_KEANIUM, RESOURCE_UTRIUM, RESOURCE_LEMERGIUM, RESOURCE_HYDROGEN];
+       
+        for(var z = 0, len = neededRsc.length; z < len; z++)
+        {
+            if(!terminal.cooldown && terminal.store[neededRsc[z]] && terminal.store[neededRsc[z]] > 100 && (Game.rooms[ScienceEnabled].terminal.store[neededRsc[z]] < 3000 || !Game.rooms[ScienceEnabled].terminal.store[neededRsc[z]]))
+            {
+                console.log("Transfering " + neededRsc[z] +" from " + activeRoom.name + " to room " + Game.rooms[ScienceEnabled] );
+                terminal.send(neededRsc[z], 100, Game.rooms[ScienceEnabled].name, 'Transfer resources for Lab');
+            }
+        }
+    }
+    else if( terminal && !terminal.cooldown && terminal.store && activeRoom.name == ScienceEnabled && terminal.store[RESOURCE_ENERGY] >= 500 &&  terminal.store[RESOURCE_GHODIUM_HYDRIDE] > 500)
+    {
+        if(Game.rooms['W63N28'].terminal && Game.rooms['W63N28'].terminal.store[RESOURCE_GHODIUM_HYDRIDE] <= 1500 )
+        {
+            console.log("Send GH to W63N28");
+            terminal.send(RESOURCE_GHODIUM_HYDRIDE, terminal.store[RESOURCE_GHODIUM_HYDRIDE], 'W63N28');
+        }
+        else if(Game.rooms['W65N28'].terminal && Game.rooms['W65N28'].terminal.store[RESOURCE_GHODIUM_HYDRIDE] <= 1500 )
+        {
+            console.log("Send GH to W65N28");
+            terminal.send(RESOURCE_GHODIUM_HYDRIDE, terminal.store[RESOURCE_GHODIUM_HYDRIDE], 'W65N28');
+        }
+    }
+
 }
 
 function defendRoom(roomName)
@@ -1049,7 +1026,7 @@ function defendRoom(roomName)
 		if(hostiles.length > 0)
 		{
 			var username = hostiles[0].owner.username;
-			if(username != 'Invader' || (username != 'dragoonreas'))
+			if(username != 'Invader' && (username != 'dragoonreas'))
 			{
 				Game.notify(`User ${username} spotted in room ${roomName}`);    
 			}
@@ -1062,4 +1039,51 @@ function defendRoom(roomName)
     }
 }
 
+function ScienceReation(roomName)
+{
+    //create reaction between scienceLabs in provided room.
+   // var scienceLabs = Game.rooms[roomName].find(FIND_MY_STRUCTURES, 
+   //     {filter: {structureType: STRUCTURE_LAB}});
+    global.scienceLabs = [Game.rooms[roomName].lookForAt('structure', 19, 9)[0], Game.rooms[roomName].lookForAt('structure', 21, 9)[0], Game.rooms[roomName].lookForAt('structure', 23, 9)[0], Game.rooms[roomName].lookForAt('structure', 25, 9)[0], Game.rooms[roomName].lookForAt('structure', 20, 8)[0], Game.rooms[roomName].lookForAt('structure', 22, 8)[0], Game.rooms[roomName].lookForAt('structure', 24, 8)[0], Game.rooms[roomName].lookForAt('structure', 21, 7)[0], Game.rooms[roomName].lookForAt('structure', 23, 7)[0], Game.rooms[roomName].lookForAt('structure', 22, 6)[0]] ; 
+    //This will produce GH if structure is as follow
+    /*
+                9-GH
+            7-G     8-H
+        4-ZK    5-UL*    6-UL       (UL in 6 to be transferrd to 5 by scientist)
+    0-Z     1-K     2-U     3-L
+    */
+    if(scienceLabs && scienceLabs.length > 2 && scienceLabs[4].cooldown == 0 && scienceLabs[0].mineralAmount > 0 && scienceLabs[1].mineralAmount > 0 && scienceLabs[4].mineralAmount < scienceLabs[4].mineralCapacity)
+    {
+        scienceLabs[4].runReaction(scienceLabs[0], scienceLabs[1]);
+    }
+    if(scienceLabs && scienceLabs.length > 6 && scienceLabs[6].cooldown == 0 && scienceLabs[2].mineralAmount > 0 && scienceLabs[3].mineralAmount > 0 && scienceLabs[6].mineralAmount < scienceLabs[6].mineralCapacity)
+    {
+        scienceLabs[6].runReaction(scienceLabs[2], scienceLabs[3]);
+    }
+    if(scienceLabs && scienceLabs.length > 5 && scienceLabs[4].cooldown == 0 && scienceLabs[1].mineralAmount > 0 && scienceLabs[5].mineralAmount > 0 && scienceLabs[4].mineralAmount < scienceLabs[4].mineralCapacity)
+    {
+        scienceLabs[4].runReaction(scienceLabs[1], scienceLabs[5]);
+    }
+    if(scienceLabs && scienceLabs.length > 7 && scienceLabs[7].cooldown == 0 && scienceLabs[4].mineralAmount > 0 && scienceLabs[5].mineralAmount > 0 && scienceLabs[7].mineralAmount < scienceLabs[7].mineralCapacity)
+    {
+        scienceLabs[7].runReaction(scienceLabs[4], scienceLabs[5]);
+    }
+    if(scienceLabs && scienceLabs.length > 9 && scienceLabs[9].cooldown == 0 && scienceLabs[7].mineralAmount > 0 && scienceLabs[8].mineralAmount > 0 && scienceLabs[9].mineralAmount < scienceLabs[9].mineralCapacity)
+    {
+        scienceLabs[9].runReaction(scienceLabs[7], scienceLabs[8]);
+    }
+    /*if(scienceLabs[9].mineralType == RESOURCE_GHODIUM_HYDRIDE && scienceLabs[9].mineralAmount >= 30 && scienceLabs[9].energy >= 20)
+    {
+        var screepsAtLab = scienceLabs[9].pos.findInRange(FIND_CREEPS, 1, {
+            filter: function(object)
+            {
+                return object.memory.role === 'upgrader';
+            } 
+        });
+        if(screepsAtLab && screepsAtLab.length > 0)
+        {
+            scienceLabs[9].boostCreep(screepsAtLab[0]);
+        }
+    }*/
+}
 

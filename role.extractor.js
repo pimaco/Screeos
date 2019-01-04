@@ -5,7 +5,7 @@ var roleExtractor = {
     {
         var mine = creep.room.find(FIND_MINERALS)[0];
         var total = _.sum(creep.carry);
-        if(mine && total < creep.carryCapacity) 
+        if(mine && total < creep.carryCapacity && creep.harvest(mine) != ERR_NOT_ENOUGH_RESOURCES) 
         {
             //console.log('Hydrogen');
             creep.pos.findInRange(FIND_DROPPED_RESOURCES).forEach(function(res) {
@@ -19,7 +19,7 @@ var roleExtractor = {
                 creep.travelTo(mine);
             }
         }
-        else if(_.sum(creep.room.terminal.store) < 295000)
+        else if(creep.room.terminal && _.sum(creep.room.terminal.store) < 275000)
         {
             if(creep.transfer(creep.room.terminal, _.findKey(creep.carry)) == ERR_NOT_IN_RANGE) 
             {
