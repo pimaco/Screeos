@@ -33,7 +33,7 @@ var roleEnergyMover = {
                     return object.structureType === STRUCTURE_LINK
                  }});
             }
-            if(creep.pos.roomName == ScienceEnabled && scienceLabs[9].mineralType == RESOURCE_GHODIUM_HYDRIDE && scienceLabs[9].mineralAmount >= 1500)
+            if(creep.pos.roomName == ScienceEnabled && scienceLabs[9].mineralType == RESOURCE_GHODIUM_HYDRIDE && scienceLabs[9].mineralAmount >= 1200)
             {
                 creep.memory.varresource = RESOURCE_GHODIUM_HYDRIDE;
             }
@@ -85,45 +85,58 @@ var roleEnergyMover = {
                     creep.memory.containerTarget = null
                 }
                 var total =[];
-
-                for (var i = 0, len = containers.length; i < len; i++)
-                {        
-                    total[i] = _.sum(containers[i].store);
-                    if(!creep.room.storage)
-                    {
-                        if(total[i] >= 1600 && creep.memory.containerSource == null )
+                if(containers && containers.length > 0)
+                {
+                    for (var i = 0, len = containers.length; i < len; i++)
+                    {        
+                        total[i] = _.sum(containers[i].store);
+                        if(!creep.room.storage)
                         {
-                            creep.memory.containerSource = containers[i];
-                            //console.log('set source' + i);
-
-                        }
-                        else if(total[i] < 1200 && creep.memory.containerTarget == null && !creep.room.storage)
-                        {
-                            //console.log('set target' + i);
-                            creep.memory.containerTarget = containers[i];
-                        } 
-                    }
-                    else
-                    {
-                        if(links)
-                        {
-                            var totalLink = links.energy;
-            
-                            if(totalLink >= 200)
+                            if(total[i] >= 1600 && creep.memory.containerSource == null )
                             {
-                                creep.memory.containerSource = links;
-                            //console.log('source is now: ' + links[0]);
+                                creep.memory.containerSource = containers[i];
+                                //console.log('set source' + i);
+
+                            }
+                            else if(total[i] < 1200 && creep.memory.containerTarget == null && !creep.room.storage)
+                            {
+                                //console.log('set target' + i);
+                                creep.memory.containerTarget = containers[i];
+                            } 
+                        }
+                        else
+                        {
+                            if(links)
+                            {
+                                var totalLink = links.energy;
+                
+                                if(totalLink >= 200)
+                                {
+                                    creep.memory.containerSource = links;
+                                //console.log('source is now: ' + links[0]);
+                                }
+                                else if(total[i] >= 400 && creep.memory.containerSource == null )
+                                {
+                                    creep.memory.containerSource = containers[i];    
+                                }
                             }
                             else if(total[i] >= 400 && creep.memory.containerSource == null )
                             {
-                                creep.memory.containerSource = containers[i];    
+                                creep.memory.containerSource = containers[i];
                             }
-                        }
-                        else if(total[i] >= 400 && creep.memory.containerSource == null )
-                        {
-                            creep.memory.containerSource = containers[i];
-                        }
-                    }                 
+                        }                 
+                    }
+                }
+                else if(links)
+                {
+                    var totalLink = links.energy;
+    
+                    if(totalLink >= 200)
+                    {
+                        creep.memory.containerSource = links;
+                        creep.memory.containerTarget = creep.room.storage;
+                    //console.log('source is now: ' + links[0]);
+                    }
                 }
 
                 var lab = creep.room.find(FIND_STRUCTURES, {

@@ -27,7 +27,7 @@ var roleMiner = {
                     } 
                     
                 });
-                if(containersClose.store[RESOURCE_ENERGY] > 0)
+                if(containersClose && containersClose.store[RESOURCE_ENERGY] > 0 && links && links.length > 0)
                 {
                     if (creep.withdraw(containersClose, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                     {

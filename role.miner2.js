@@ -29,7 +29,7 @@ var roleMiner2 = {
                     
                 });
 
-                if(containersClose.store[RESOURCE_ENERGY] > 0)
+                if(containersClose && containersClose.store[RESOURCE_ENERGY] > 0 && SR && SR.length > 0)
                 {
                     if (creep.withdraw(containersClose, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                     {

@@ -22,16 +22,16 @@ module.exports = function (creep) {
         }
         else
         {
-            /*var targetSpawn =creep.room.find(FIND_HOSTILE_SPAWNS);
-            if(targetSpawn.length)
+            var targetSpawn =creep.room.find(FIND_HOSTILE_SPAWNS);
+            if(targetSpawn && targetSpawn.length > 0)
             {
                 if(creep.attack(targetSpawn [0]) == ERR_NOT_IN_RANGE)
                 {
                     creep.travelTo(targetSpawn[0]);
                 }
-            }*/
-            //else
-           // {
+            }
+            else
+           {
                 var hostileStruc =creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
                     filter: function(object)
                     {
@@ -53,7 +53,7 @@ module.exports = function (creep) {
                 {
                     creep.travelTo(Game.flags.TOATTACK); 
                 }
-           // }
+            }
         }
         
     }
