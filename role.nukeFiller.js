@@ -38,7 +38,7 @@ var roleNukeFiller = {
 
             //console.log(creep.pos.x);
 
-            creep.memory.containerSource = creep.room.terminal;
+            creep.memory.containerSource = creep.room.terminal;//Game.getObjectById('5ac377117c872c5b781f26b4');
             creep.memory.containerTarget = Game.getObjectById('5b1a9a14d025753871a5f213');
 
                 if( _.sum(creep.carry) < creep.carryCapacity && creep.memory.containerSource )
