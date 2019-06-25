@@ -46,25 +46,25 @@ var roleScientist = {
             }
             else if (!creep.carry.energy || creep.carry.energy == 0)
             {
-                if(labs[0] && (labs[0].mineralType == RESOURCE_ZYNTHIUM || labs[0].mineralType == undefined) && labs[0].mineralAmount < (labs[0].mineralCapacity - creep.carryCapacity) && creep.room.terminal.store[RESOURCE_ZYNTHIUM] > 0)
+                if(labs[0] && (labs[0].mineralType == RESOURCE_ZYNTHIUM || labs[0].mineralType == undefined) && labs[0].mineralAmount < (labs[0].mineralCapacity - creep.carryCapacity) && creep.room.terminal.store[RESOURCE_ZYNTHIUM] >= 800)
                 {
                     creep.memory.varresource = RESOURCE_ZYNTHIUM;
                     creep.memory.containerSource = creep.room.terminal;
                     creep.memory.containerTarget = labs[0];
                 }
-                else if(labs[1] && (labs[1].mineralType == RESOURCE_KEANIUM || labs[1].mineralType == undefined) && labs[1].mineralAmount < (labs[1].mineralCapacity - creep.carryCapacity) && creep.room.terminal.store[RESOURCE_KEANIUM] > 0)
+                else if(labs[1] && (labs[1].mineralType == RESOURCE_KEANIUM || labs[1].mineralType == undefined) && labs[1].mineralAmount < (labs[1].mineralCapacity - creep.carryCapacity) && creep.room.terminal.store[RESOURCE_KEANIUM] >= 800)
                 {
                     creep.memory.varresource = RESOURCE_KEANIUM;
                     creep.memory.containerSource = creep.room.terminal;
                     creep.memory.containerTarget = labs[1];
                 }
-                else if(labs[2] && (labs[2].mineralType == RESOURCE_UTRIUM || labs[2].mineralType == undefined) && labs[2].mineralAmount <  (labs[2].mineralCapacity - creep.carryCapacity) && creep.room.terminal.store[RESOURCE_UTRIUM] > 0)
+                else if(labs[2] && (labs[2].mineralType == RESOURCE_UTRIUM || labs[2].mineralType == undefined) && labs[2].mineralAmount <  (labs[2].mineralCapacity - creep.carryCapacity) && creep.room.terminal.store[RESOURCE_UTRIUM] >= 800)
                 {
                     creep.memory.varresource = RESOURCE_UTRIUM;
                     creep.memory.containerSource = creep.room.terminal;
                     creep.memory.containerTarget = labs[2];
                 }
-                else if(labs[3] && (labs[3].mineralType == RESOURCE_LEMERGIUM || labs[3].mineralType == undefined) && labs[3].mineralAmount < (labs[3].mineralCapacity - creep.carryCapacity) && creep.room.terminal.store[RESOURCE_LEMERGIUM] > 0)
+                else if(labs[3] && (labs[3].mineralType == RESOURCE_LEMERGIUM || labs[3].mineralType == undefined) && labs[3].mineralAmount < (labs[3].mineralCapacity - creep.carryCapacity) && creep.room.terminal.store[RESOURCE_LEMERGIUM] >= 800)
                 {
                     creep.memory.varresource = RESOURCE_LEMERGIUM;
                     creep.memory.containerSource = creep.room.terminal;
@@ -74,14 +74,14 @@ var roleScientist = {
                 {
                     creep.memory.varresource = RESOURCE_UTRIUM_LEMERGITE;
                     creep.memory.containerSource = labs[6];
-                    console.log(_.findKey(creep.carry));
+                    //console.log(_.findKey(creep.carry));
                     if((creep.carry && creep.carry[RESOURCE_UTRIUM_LEMERGITE] && !creep.carry[RESOURCE_HYDROGEN]  && !creep.carry[RESOURCE_UTRIUM] && !creep.carry[RESOURCE_LEMERGIUM] && !creep.carry[RESOURCE_KEANIUM] &&  !creep.carry[RESOURCE_ZYNTHIUM]) || !(_.findKey(creep.carry)) )
                     {
                         creep.memory.containerTarget = labs[5];
                     }
                     
                 }
-                else if(labs[8] && (labs[8].mineralType == RESOURCE_HYDROGEN || labs[8].mineralType == undefined) && labs[8].mineralAmount < (labs[8].mineralCapacity - creep.carryCapacity) && creep.room.terminal.store[RESOURCE_HYDROGEN] > 0)
+                else if(labs[8] && (labs[8].mineralType == RESOURCE_HYDROGEN || labs[8].mineralType == undefined) && labs[8].mineralAmount < (labs[8].mineralCapacity - creep.carryCapacity) && creep.room.terminal.store[RESOURCE_HYDROGEN] >= 800)
                 {
                     creep.memory.varresource = RESOURCE_HYDROGEN;
                     creep.memory.containerSource = creep.room.terminal;

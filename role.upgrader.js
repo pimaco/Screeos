@@ -63,7 +63,20 @@
                         }
                         else
                         {
-                            if(creep.room.storage)
+                            var nearlink = creep.pos.findInRange(FIND_STRUCTURES, 2,{
+                                filter: function(object)
+                                {
+                                    return object.structureType === STRUCTURE_LINK;
+                                } 
+                            });
+                            if(nearlink && nearlink.length > 0 && nearlink[0].energy >= 100 )
+                            {
+                                if(creep.withdraw(nearlink[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+                                {
+                                    creep.moveTo(nearlink[0]);   
+                                }
+                            }
+                            else if(creep.room.storage)
                             {
                                 if((_.sum(creep.room.storage.store) > 4000) && (creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE))
                                 {
@@ -83,7 +96,20 @@
                 }
                 else
                 {
-                    if(creep.room.storage)
+                    var nearlink = creep.pos.findInRange(FIND_STRUCTURES, 2,{
+                        filter: function(object)
+                        {
+                            return object.structureType === STRUCTURE_LINK;
+                        } 
+                    });
+                    if(nearlink && nearlink.length > 0 && nearlink[0].energy >= 100 )
+                    {
+                        if(creep.withdraw(nearlink[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+                        {
+                            creep.moveTo(nearlink[0]);   
+                        }
+                    }
+                    else if(creep.room.storage)
                     {
                         if(_.sum(creep.room.storage.store) > 1000)
                         {
