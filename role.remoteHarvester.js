@@ -42,7 +42,7 @@ module.exports = function (creep) {
                             else {
                                 if (creep.memory.container == undefined) {
                                     var container;
-                                    var containers = creep.pos.findInRange(FIND_STRUCTURES, 1, {filter: (s) => (s.structureType == STRUCTURE_CONTAINER && s.storeCapacity - _.sum(s.store) > 0) || (s.structureType == STRUCTURE_LINK && s.energyCapacity - s.energy) > 0});
+                                    var containers = creep.pos.findInRange(FIND_STRUCTURES, 1, {filter: (s) => (s.structureType == STRUCTURE_CONTAINER && s.store.getCapacity(RESOURCE_ENERGY) - _.sum(s.store) > 0) || (s.structureType == STRUCTURE_LINK && s.energyCapacity - s.energy) > 0});
                                     if (containers.length > 0) {
                                         creep.memory.container = containers[0].id;
                                         container = containers[0];

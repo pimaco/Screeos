@@ -209,7 +209,11 @@ var roleEnergyMover = {
                     {
                         creep.memory.containerSource = creep.room.terminal;
                     }
-                    else if(creep.room.storage.store[RESOURCE_ENERGY] >= creep.carryCapacity)
+                    else if(totalLink > 700)
+                    {
+                        creep.memory.containerSource = links;
+                    }
+                    else if(creep.room.storage.store[RESOURCE_ENERGY] >= 1000)//creep.carryCapacity)
                     {
                         creep.memory.containerSource = creep.room.storage;
                     }
@@ -217,10 +221,22 @@ var roleEnergyMover = {
                     
                     creep.memory.containerTarget = lab;
                 }
-                else if(creep.pos.roomName != ScienceEnabled && creep.room.storage && totalS > 30000 && creep.room.terminal && totalEnerTerm <= 14000 && creep.room.controller.level ==  8)
+                else if(creep.pos.roomName != ScienceEnabled && creep.room.storage && totalS > 50000 && creep.room.terminal && totalEnerTerm <= 25000 && creep.room.controller.level ==  8)
                 {
-                    creep.memory.containerSource = creep.room.storage;
+                    if(totalLink > 750)
+                    {
+                        creep.memory.containerSource = links;
+                    }
+                    else
+                    {
+                        creep.memory.containerSource = creep.room.storage;
+                    }
                     creep.memory.containerTarget = creep.room.terminal;
+                }
+                else  if(totalLink > 750)
+                {
+                    creep.memory.containerSource = links;
+                    creep.memory.containerTarget = creep.room.storage;
                 }
                 else if(creep.room.storage && creep.room.terminal && totalEnerTerm > 2000 && creep.room.controller.level < 8)
                 {
@@ -236,7 +252,7 @@ var roleEnergyMover = {
                         creep.memory.containerTarget = creep.room.storage;
                     }
                 }
-                else if(creep.room.storage && creep.room.terminal && totalEnerTerm > 15000 && creep.room.controller.level == 8)
+                else if(creep.room.storage && creep.room.terminal && totalEnerTerm > 25000 && totalS < 50000 && creep.room.controller.level == 8)
                 {
                     creep.memory.containerSource = creep.room.terminal;
                     creep.memory.containerTarget = creep.room.storage;
